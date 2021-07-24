@@ -1,0 +1,557 @@
+#line 1 "C:\PROTHE~2\INCLUDE\PROTHEUS.CH"
+#line 1 "C:\PROTHE~2\INCLUDE\Dialog.ch"
+#line 26 "PROTHEUS.CH"
+#line 1 "C:\PROTHE~2\INCLUDE\Font.ch"
+#line 27 "PROTHEUS.CH"
+#line 1 "C:\PROTHE~2\INCLUDE\PTMenu.ch"
+#line 29 "PROTHEUS.CH"
+#line 1 "C:\PROTHE~2\INCLUDE\Print.ch"
+#line 31 "PROTHEUS.CH"
+#line 1 "C:\PROTHE~2\INCLUDE\Colors.ch"
+#line 33 "PROTHEUS.CH"
+#line 1 "C:\PROTHE~2\INCLUDE\Folder.ch"
+#line 35 "PROTHEUS.CH"
+#line 1 "C:\PROTHE~2\INCLUDE\msobject.ch"
+#line 36 "PROTHEUS.CH"
+#line 1 "C:\PROTHE~2\INCLUDE\VKey.ch"
+#line 40 "PROTHEUS.CH"
+#line 1 "C:\PROTHE~2\INCLUDE\WinApi.ch"
+#line 42 "PROTHEUS.CH"
+#line 2 "c:\ita\clientes\comafal\fontes\comafal\teste\rgercomaf.prw"
+#line 1 "C:\PROTHE~2\INCLUDE\TopConn.Ch"
+#line 19 "c:\ita\clientes\comafal\fontes\comafal\teste\rgercomaf.prw"
+Function U_RGerComaf
+
+
+
+
+
+Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
+Local cDesc2         := "de acordo com os parametros informados pelo usuario."
+Local cDesc3         := "Resumo Gerencial COMAFAL"
+Local cPict          := ""
+Local titulo       := "Resumo Gerencial COMAFAL"
+Local nLin         := 80
+
+Local Cabec1       := ""
+Local Cabec2       := ""
+Local imprime      := .T. 
+Local aOrd := {}
+Private lEnd         := .F. 
+Private lAbortPrint  := .F. 
+Private CbTxt        := ""
+Private limite           := 220
+Private tamanho          := "G"
+Private nomeprog         := "RGerComaf"
+Private nTipo            := 15
+Private aReturn          := { "Zebrado", 1, "Administracao", 1, 2, 1, "", 1}
+Private nLastKey        := 0
+Private cPerg       := "RGERCO"
+
+Private cbtxt      := Space(10)
+Private cbcont     := 00
+Private CONTFL     := 01
+Private m_pag      := 01
+Private wnrel      := "RGerComaf"
+Private dDataDe    := CTOD("")
+Private dDataAte   := CTOD("")
+Private d2AnoMes   := ""
+Private d3AnoMes   := ""
+
+
+Private cString := "SA1"
+
+dbSelectArea("SA1")
+dbSetOrder(1)
+
+AjustaSx1()
+pergunte(cPerg, .F. )
+
+
+
+
+
+wnrel := SetPrint(cString,NomeProg,cPerg,@titulo,cDesc1,cDesc2,cDesc3, .F. ,aOrd, .F. ,Tamanho,, .F. )
+
+
+
+
+
+
+
+
+
+
+dDataDe  := MV_PAR01
+dDataAte := MV_PAR02
+nDeptos  := MV_PAR05
+
+lComercial := IIF(nDeptos == 1 .Or.  nDeptos == 2, .T. , .F. )
+
+titulo       := "Resumo Gerencial COMAFAL Período "+DtoC(dDataDe)+" a "+DtoC(dDataAte)
+
+n2ResMes := Val(Substr(DTOS(dDataDe),1,6)) + 1
+d2AnoMes := Alltrim(Str(n2ResMes))
+If Right(Alltrim(Str(n2ResMes)),2) == "13"
+   cAno := Val(Substr(DTOS(dDataDe),1,4)) + 1
+   d2AnoMes   := Alltrim(Str(cAno))+"01"
+EndIf
+
+n3ResMes := Val(Substr(DTOS(dDataDe),1,6)) + 2
+d3AnoMes   := Alltrim(Str(n3ResMes,2))
+If Right(Alltrim(Str(n3ResMes)),2) == "13"
+   cAno := Val(Substr(DTOS(dDataDe),1,4)) + 1
+   d3AnoMes   := Alltrim(Str(cAno))+"01"
+EndIf
+
+If nLastKey == 27
+	Return
+Endif
+
+SetDefault(aReturn,cString)
+
+If nLastKey == 27
+   Return
+Endif
+
+nTipo := If(aReturn[4]==1,15,18)
+
+
+
+
+
+RptStatus({|| RunReport(Cabec1,Cabec2,Titulo,nLin) },Titulo)
+Return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
+
+Local nOrdem
+
+dbSelectArea(cString)
+dbSetOrder(1)
+
+
+
+
+
+
+If lComercial
+
+
+
+
+
+
+
+   For nMes := 1 To 9
+
+      If nMes <= 6
+         cQrySF2 := "SELECT COUNT(*) AS CLIENTES"
+      ElseIf nMes >= 7
+         cQrySF2 := "SELECT COUNT(DISTINCT F2_CLIENTE+' '+F2_LOJA) AS CLIENTES"
+      EndIf
+      cQrySF2 += " FROM "+RetSQLName("SF2")+" SF2"
+      cQrySF2 += " WHERE SF2.F2_FILIAL = '"+xFilial("SF2")+"'"
+      If nMes <= 3
+         If nMes == 1
+            cQrySF2 += "   AND SUBSTRING(SF2.F2_EMISSAO,1,6) = '"+Substr(DTOS(dDataDe),1,6)+"'"
+         ElseIf nMes == 2
+            cQrySF2 += "   AND SUBSTRING(SF2.F2_EMISSAO,1,6) = '"+d2AnoMes+"'"
+         ElseIf nMes == 3
+            cQrySF2 += "   AND SUBSTRING(SF2.F2_EMISSAO,1,6) = '"+d3AnoMes+"'"
+         EndIf
+      ElseIf nMes >= 4 .And.  nMes <= 6
+         If nMes == 4
+            cQrySF2 += "   AND SUBSTRING(SF2.F2_EMISSAO,1,6) BETWEEN '"+Substr(DTOS(dDataDe - 180),1,6)+"' AND '"+Substr(DTOS(dDataDe),1,6)+"'"
+         ElseIf nMes == 5
+            dData02 := CTOD("01/"+Substr(d2AnoMes,5,2)+"/"+Substr(d2AnoMes,1,4))
+            cQrySF2 += "   AND SUBSTRING(SF2.F2_EMISSAO,1,6) BETWEEN '"+Substr(DTOS(dData02 - 180),1,6)+"' AND '"+Substr(DTOS(dData02),1,6)+"'"
+         ElseIf nMes == 6
+            dData03 := CTOD("01/"+Substr(d3AnoMes,5,2)+"/"+Substr(d3AnoMes,1,4))
+            cQrySF2 += "   AND SUBSTRING(SF2.F2_EMISSAO,1,6) BETWEEN '"+Substr(DTOS(dData03 - 180),1,6)+"' AND '"+Substr(DTOS(dData03),1,6)+"'"
+         EndIf
+      EndIf
+
+      If nMes <= 3
+         cQrySF2 += "   AND (SELECT COUNT(*)"
+         cQrySF2 += "        FROM "+RetSQLName("SF2")+" TSF2"
+         cQrySF2 += "        WHERE TSF2.F2_FILIAL = '"+xFilial("SF2")+"'"
+         cQrySF2 += "          AND TSF2.F2_CLIENTE = SF2.F2_CLIENTE"
+         cQrySF2 += "          AND TSF2.F2_LOJA = SF2.F2_LOJA"
+         If nMes == 1
+            cQrySF2 += "          AND SUBSTRING(TSF2.F2_EMISSAO,1,6) < '"+Substr(DTOS(dDataDe),1,6)+"'"
+         ElseIf nMes == 2
+            cQrySF2 += "          AND SUBSTRING(TSF2.F2_EMISSAO,1,6) < '"+d2AnoMes+"'"
+         ElseIf nMes == 3
+            cQrySF2 += "          AND SUBSTRING(TSF2.F2_EMISSAO,1,6) < '"+d2AnoMes+"'"
+         EndIf
+         cQrySF2 += "          AND TSF2.D_E_L_E_T_ <> '*') = 0"
+      EndIf
+
+      If nMes >= 7
+         If nMes == 7
+            cQrySF2 += "   AND SUBSTRING(SF2.F2_EMISSAO,1,6) = '"+Substr(DTOS(dDataDe),1,6)+"'"
+         ElseIf nMes == 8
+            cQrySF2 += "   AND SUBSTRING(SF2.F2_EMISSAO,1,6) = '"+d2AnoMes+"'"
+         ElseIf nMes == 9
+            cQrySF2 += "   AND SUBSTRING(SF2.F2_EMISSAO,1,6) = '"+d3AnoMes+"'"
+         EndIf
+      EndIf
+
+      cQrySF2 += "   AND SF2.D_E_L_E_T_ <> '*'"
+
+      dbUseArea(.T., "TOPCONN", TCGENQRY(,,cQrySF2), "TCLI" , .F. , .T. )
+
+      If nMes <= 3
+         If nMes == 1
+            DbSelectArea("TCLI")
+            nCliN01Mes := TCLI->CLIENTES
+            DbCloseArea()
+         EndIf
+
+         If nMes == 2
+            DbSelectArea("TCLI")
+            nCliN02Mes := TCLI->CLIENTES
+            DbCloseArea()
+         EndIf
+
+         If nMes == 3
+            DbSelectArea("TCLI")
+            nCliN03Mes := TCLI->CLIENTES
+            DbCloseArea()
+         EndIf
+      ElseIf nMes >= 4 .And.  nMes <= 6
+         If nMes == 4
+            DbSelectArea("TCLI")
+            nClAtv1Mes := TCLI->CLIENTES
+            DbCloseArea()
+         EndIf
+
+         If nMes == 5
+            DbSelectArea("TCLI")
+            nClAtv2Mes := TCLI->CLIENTES
+            DbCloseArea()
+         EndIf
+
+         If nMes == 6
+            DbSelectArea("TCLI")
+            nClAtv3Mes := TCLI->CLIENTES
+            DbCloseArea()
+         EndIf
+      ElseIf nMes >= 7 .And.  nMes <= 9
+         If nMes == 7
+            DbSelectArea("TCLI")
+            nClAtd1Mes := TCLI->CLIENTES
+            DbCloseArea()
+         EndIf
+
+         If nMes == 8
+            DbSelectArea("TCLI")
+            nClAtd2Mes := TCLI->CLIENTES
+            DbCloseArea()
+         EndIf
+
+         If nMes == 9
+            DbSelectArea("TCLI")
+            nClAtd3Mes := TCLI->CLIENTES
+            DbCloseArea()
+         EndIf
+      EndIf
+
+   next
+   For nMes := 1 To 3
+      cQrySA1 := "SELECT COUNT(*) AS CLIENTES"
+      cQrySA1 += " FROM "+RetSQLName("SA1")+" SA1"
+      cQrySA1 += " WHERE SA1.A1_FILIAL = '"+xFilial("SA1")+"'"
+      cQrySA1 += " AND (SELECT COUNT(*)"
+      cQrySA1 += "      FROM "+RetSQLName("SF2")+" SF2"
+      cQrySA1 += "      WHERE SF2.F2_FILIAL = '"+xFilial("SF2")+"'"
+      If nMes == 1
+         cQrySA1 += "     AND SUBSTRING(SF2.F2_EMISSAO,1,6) BETWEEN '"+Substr(DTOS(dDataDe - 180),1,6)+"' AND '"+Substr(DTOS(dDataDe),1,6)+"'"
+      ElseIf nMes == 2
+         cQrySA1 += "     AND SUBSTRING(SF2.F2_EMISSAO,1,6) BETWEEN '"+Substr(DTOS(dData02 - 180),1,6)+"' AND '"+Substr(DTOS(dData02),1,6)+"'"
+      ElseIf nMes == 3
+         cQrySA1 += "     AND SUBSTRING(SF2.F2_EMISSAO,1,6) BETWEEN '"+Substr(DTOS(dData03 - 180),1,6)+"' AND '"+Substr(DTOS(dData03),1,6)+"'"
+      EndIf
+      cQrySA1 += "        AND SF2.F2_CLIENTE = SA1.A1_COD"
+      cQrySA1 += "        AND SF2.F2_LOJA = SA1.A1_LOJA"
+      cQrySA1 += "        AND SF2.D_E_L_E_T_ <> '*') = 0 "
+
+      cQrySA1 += " AND (SELECT COUNT(*)"
+      cQrySA1 += "      FROM "+RetSQLName("SF2")+" SF2"
+      cQrySA1 += "      WHERE SF2.F2_FILIAL = '"+xFilial("SF2")+"'"
+      If nMes == 1
+         cQrySA1 += "     AND SUBSTRING(SF2.F2_EMISSAO,1,6) > '"+Substr(DTOS(dDataDe),1,6)+"'"
+      ElseIf nMes == 2
+         cQrySA1 += "     AND SUBSTRING(SF2.F2_EMISSAO,1,6) > '"+Substr(DTOS(dData02),1,6)+"'"
+      ElseIf nMes == 3
+         cQrySA1 += "     AND SUBSTRING(SF2.F2_EMISSAO,1,6) > '"+Substr(DTOS(dData03),1,6)+"'"
+      EndIf
+      cQrySA1 += "        AND SF2.F2_CLIENTE = SA1.A1_COD"
+      cQrySA1 += "        AND SF2.F2_LOJA = SA1.A1_LOJA"
+      cQrySA1 += "        AND SF2.D_E_L_E_T_ <> '*') = 0 "
+
+      cQrySA1 += " AND SA1.D_E_L_E_T_ <> '*'"
+
+
+
+      dbUseArea(.T., "TOPCONN", TCGENQRY(,,cQrySA1), "TCLI" , .F. , .T. )
+
+      If nMes == 1
+         DbSelectArea("TCLI")
+         nClIna1Mes := TCLI->CLIENTES
+         DbCloseArea()
+      EndIf
+
+      If nMes == 2
+         DbSelectArea("TCLI")
+         nClIna2Mes := TCLI->CLIENTES
+         DbCloseArea()
+      EndIf
+
+      If nMes == 3
+         DbSelectArea("TCLI")
+         nClIna3Mes := TCLI->CLIENTES
+         DbCloseArea()
+      EndIf
+   next
+
+EndIf
+
+
+
+
+
+
+
+
+lRoda := .T. 
+While lRoda
+
+
+
+
+
+   If lAbortPrint
+      PrintOut(nLin,00,"*** CANCELADO PELO OPERADOR ***",,)
+      Exit
+   Endif
+
+
+
+
+
+   If nLin > 55
+      Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+      nLin := 8
+   Endif
+
+   If lComercial
+      PrintOut(nLin,000,"|"+Replicate("=",218)+"|",,)
+      nLin ++
+      If nLin > 55
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 8
+      Endif
+      PrintOut(nLin,000,"|COMERCIAL",,)
+      PrintOut(nLin,219,"|",,)
+      nLin ++
+      If nLin > 55
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 8
+      Endif
+
+
+      PrintOut(nLin,000,"|MES                                |",,)
+      PrintOut(nLin,037,fNomeMes(Alltrim(StrZero(Month(dDataDe),2))),,)
+      PrintOut(nLin,072,"|",,)
+      PrintOut(nLin,073,fNomeMes(Right(d2AnoMes,2)),,)
+      PrintOut(nLin,108,"|",,)
+      PrintOut(nLin,109,fNomeMes(Right(d3AnoMes,2)),,)
+      PrintOut(nLin,144,"|",,)
+      PrintOut(nLin,219,"|",,)
+      nLin ++
+      If nLin > 55
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 8
+      Endif
+      PrintOut(nLin,000,"|"+Replicate("=",218)+"|",,)
+      nLin ++
+      If nLin > 55
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 8
+      Endif
+      PrintOut(nLin,000,"|CLIENTES                           |",,)
+      PrintOut(nLin,050,(nClAtv1Mes+nClIna1Mes),"@E 999,999",)
+      PrintOut(nLin,072,"|",,)
+      PrintOut(nLin,087,(nClAtv2Mes+nClIna2Mes),"@E 999,999",)
+      PrintOut(nLin,108,"|",,)
+      PrintOut(nLin,124,(nClAtv3Mes+nClIna3Mes),"@E 999,999",)
+      PrintOut(nLin,144,"|",,)
+      PrintOut(nLin,219,"|",,)
+      nLin ++
+      If nLin > 55
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 8
+      Endif
+
+
+
+
+      PrintOut(nLin,000,"| * Novos                           |",,)
+      PrintOut(nLin,050,nCliN01Mes,"@E 999,999",)
+      PrintOut(nLin,072,"|",,)
+      PrintOut(nLin,087,nCliN02Mes,"@E 999,999",)
+      PrintOut(nLin,108,"|",,)
+      PrintOut(nLin,124,nCliN03Mes,"@E 999,999",)
+      PrintOut(nLin,144,"|",,)
+      PrintOut(nLin,219,"|",,)
+      nLin ++
+      If nLin > 55
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 8
+      Endif
+      PrintOut(nLin,000,"| * Ativos                          |",,)
+      PrintOut(nLin,050,nClAtv1Mes,"@E 999,999",)
+      PrintOut(nLin,072,"|",,)
+      PrintOut(nLin,087,nClAtv2Mes,"@E 999,999",)
+      PrintOut(nLin,108,"|",,)
+      PrintOut(nLin,124,nClAtv3Mes,"@E 999,999",)
+      PrintOut(nLin,144,"|",,)
+      PrintOut(nLin,219,"|",,)
+      nLin ++
+      If nLin > 55
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 8
+      Endif
+      PrintOut(nLin,000,"| * Inativos                        |",,)
+      PrintOut(nLin,050,nClIna1Mes,"@E 999,999",)
+      PrintOut(nLin,072,"|",,)
+      PrintOut(nLin,087,nClIna2Mes,"@E 999,999",)
+      PrintOut(nLin,108,"|",,)
+      PrintOut(nLin,124,nClIna3Mes,"@E 999,999",)
+      PrintOut(nLin,144,"|",,)
+      PrintOut(nLin,219,"|",,)
+      nLin ++
+      If nLin > 55
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 8
+      Endif
+      PrintOut(nLin,000,"| * Atendidos                       |",,)
+      PrintOut(nLin,050,nClAtd1Mes,"@E 999,999",)
+      PrintOut(nLin,072,"|",,)
+      PrintOut(nLin,087,nClAtd2Mes,"@E 999,999",)
+      PrintOut(nLin,108,"|",,)
+      PrintOut(nLin,124,nClAtd3Mes,"@E 999,999",)
+      PrintOut(nLin,144,"|",,)
+      PrintOut(nLin,219,"|",,)
+      nLin ++
+      If nLin > 55
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 8
+      Endif
+      PrintOut(nLin,000,"| * % Atendimento                   |",,)
+      PrintOut(nLin,051,nClAtd1Mes/(nClAtv1Mes+nClIna1Mes),"@E 999.99",)
+      PrintOut(nLin,072,"|",,)
+      PrintOut(nLin,088,nClAtd2Mes/(nClAtv2Mes+nClIna2Mes),"@E 999.99",)
+      PrintOut(nLin,108,"|",,)
+      PrintOut(nLin,125,nClAtd3Mes/(nClAtv3Mes+nClIna3Mes),"@E 999.99",)
+      PrintOut(nLin,144,"|",,)
+      PrintOut(nLin,219,"|",,)
+      nLin ++
+      If nLin > 55
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 8
+      Endif
+      PrintOut(nLin,000,"|"+Replicate("=",218)+"|",,)
+
+   EndIf
+
+   nLin ++
+
+
+   lRoda := .F. 
+EndDo
+
+
+
+
+
+Set( 20, "SCREEN" )
+
+
+
+
+
+If aReturn[5]==1
+   dbCommitAll()
+   Set( 24, "" )
+   OurSpool(wnrel)
+Endif
+
+MS_FLUSH()
+Return
+
+
+
+
+
+
+Static Function AjustaSx1
+
+Local aArea := GetArea()
+
+
+  PutSx1(cPerg ,"01","Data de ?" ,"","","mv_ch1","D"  ,8       ,0       ,0      ,"G" ,""    ,"" ,""     ,"","MV_PAR01",""     ,"","",""    ,""           ,"","",""         ,"","",""          ,"","","","","")
+  PutSx1(cPerg ,"02","Data ate ?","","","mv_ch2","D"  ,8       ,0       ,0      ,"G" ,""    ,"" ,""     ,"","MV_PAR02",""     ,"","",""    ,""           ,"","",""         ,"","",""          ,"","","","","")
+  PutSx1(cPerg ,"03","Custo ?"   ,"","","mv_ch3","C"  ,1       ,0       ,0      ,"C" ,""    ,"" ,""     ,"","MV_PAR03","Medio","","",""    ,"Reposicao"  ,"","","Calculado","","",""          ,"","","","","")
+  PutSx1(cPerg ,"04","Analitico?","","","mv_ch4","C"  ,1       ,0       ,0      ,"C" ,""    ,"" ,""     ,"","MV_PAR04","Sim"  ,"","",""    ,"Nao"        ,"","",""         ,"","",""          ,"","","","","")
+  PutSx1(cPerg ,"05","Depto.?"   ,"","","mv_ch5","C"  ,1       ,0       ,0      ,"C" ,""    ,"" ,""     ,"","MV_PAR05","Todos","","",""    ,"Faturamento","","","Industria","","","Financeiro","","","Gerencial","","")
+
+RestArea(aArea)
+
+Return( .T. )
+
+Static Function fNomeMes(cMes)
+   cNomeMes := ""
+   If cMes == "01"
+      cNomeMes := "JANEIRO"
+   ElseIf cMes == "02"
+      cNomeMes := "FEVEREIRO"
+   ElseIf cMes == "03"
+      cNomeMes := "MARÇO"
+   ElseIf cMes == "04"
+      cNomeMes := "ABRIL"
+   ElseIf cMes == "05"
+      cNomeMes := "MAIO"
+   ElseIf cMes == "06"
+      cNomeMes := "JUNHO"
+   ElseIf cMes == "07"
+      cNomeMes := "JULHO"
+   ElseIf cMes == "08"
+      cNomeMes := "AGOSTO"
+   ElseIf cMes == "09"
+      cNomeMes := "SETEMBBRO"
+   ElseIf cMes == "10"
+      cNomeMes := "OUTUBRO"
+   ElseIf cMes == "11"
+      cNomeMes := "NOVEMBRO"
+   ElseIf cMes == "12"
+      cNomeMes := "DEZEMBRO"
+   EndIf
+Return(cNomeMes)

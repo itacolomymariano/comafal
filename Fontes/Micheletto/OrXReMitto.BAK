@@ -1,0 +1,3523 @@
+
+#INCLUDE "rwmake.ch"
+//#INCLUDE "Protheus.ch"
+#INCLUDE "TopConn.ch"
+/*
+// Constantes para identificar o tipo de impressão.
+#DEFINE IMP_DISCO 1
+#DEFINE IMP_SPOOL 2
+#DEFINE IMP_PORTA 3
+#DEFINE IMP_EMAIL 4
+
+#DEFINE INICABEC    Chr(27)+Chr(01)+Chr(01)
+#DEFINE FIMCABEC    Chr(27)+Chr(01)+Chr(02)
+
+#DEFINE INIFIELD    Chr(27)+Chr(02)+Chr(01)
+#DEFINE FIMFIELD    Chr(27)+Chr(02)+Chr(02)
+#DEFINE INIRODA     Chr(27)+Chr(03)+Chr(01)
+#DEFINE FIMRODA     Chr(27)+Chr(03)+Chr(02)
+#DEFINE INIPARAM    Chr(27)+Chr(04)+Chr(01)
+#DEFINE FIMPARAM    Chr(27)+Chr(04)+Chr(02)
+#DEFINE INITHINLINE Chr(27)+Chr(05)+Chr(01)
+#DEFINE FIMTHINLINE Chr(27)+Chr(05)+Chr(02)
+#DEFINE INIFATLINE  Chr(27)+Chr(06)+Chr(01)
+#DEFINE FIMFATLINE  Chr(27)+Chr(06)+Chr(02)
+#DEFINE INICENTER   Chr(27)+Chr(07)+Chr(01)
+#DEFINE FIMCENTER   Chr(27)+Chr(07)+Chr(02)
+#DEFINE INIRIGHT    Chr(27)+Chr(09)+Chr(01)
+#DEFINE FIMRIGHT    Chr(27)+Chr(09)+Chr(02)
+#DEFINE INILEFT     Chr(27)+Chr(11)+Chr(01)
+#DEFINE FIMLEFT     Chr(27)+Chr(11)+Chr(02)
+#DEFINE INILOGO     Chr(27)+Chr(14)+Chr(01)
+#DEFINE FIMLOGO     Chr(27)+Chr(14)+Chr(02)
+#DEFINE INIBORDER   Chr(27)+Chr(16)+Chr(01)
+#DEFINE FIMBORDER   Chr(27)+Chr(16)+Chr(02)
+*/
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³OrXReMittoº Autor ³ Five Solutions     º Data ³  30/05/2008 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDescricao ³ Mapa Comparativo de Naturezas - Orçados X Real por Blocos  º±±
+±±º          ³ de Naturezas.                                              º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ MICHELETTO - RS                                            º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+
+User Function OrXReMitto
+
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Declaracao de Variaveis                                             ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+Local cDesc1         := "Este programa tem como objetivo imprimir relatorio "
+Local cDesc2         := "de acordo com os parametros informados pelo usuario."
+Local cDesc3         := "Mapa Comparativo de Naturezas - Orçados X Real"
+Local cPict          := ""
+//Local titulo       := "Mapa Comparativo de Naturezas - Orçados X Real"
+//Local nLin         := 80
+
+//Local Cabec1       := "                                                                                                        G A S T O S   G E R A I S   D O   A D M I N I S T R A T I V O                                                       "
+//Local Cabec2       := "Natureza   Descrição                                       Janeiro     Fevereiro         Março         Abril          Maio         Junho         Julho        Agosto      Setembro       Outubro      Novembro      Dezembro"
+Local imprime      := .T.
+Local aOrd := {}
+//Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+Private titulo       := "Mapa Comparativo de Naturezas - Orçados X Real"
+Private Cabec1       := "                                                                                                        G A S T O S   G E R A I S   D O   A D M I N I S T R A T I V O                                                       "
+Private Cabec2       := "Natureza   Descrição                                       Janeiro     Fevereiro         Março         Abril          Maio         Junho         Julho        Agosto      Setembro       Outubro      Novembro      Dezembro"
+Private nLin         := 80
+Private lEnd         := .F.
+Private lAbortPrint  := .F.
+Private CbTxt        := ""
+Private limite           := 220
+Private tamanho          := "G"
+Private nomeprog         := "ROrcXRea" // Coloque aqui o nome do programa para impressao no cabecalho
+Private nTipo            := 15
+Private aReturn          := { "Zebrado", 1, "Administracao", 1, 2, 1, "", 1}
+Private nLastKey        := 0
+Private cPerg       := "ORCREA"
+Private cbtxt      := Space(10)
+Private cbcont     := 00
+Private CONTFL     := 01
+Private m_pag      := 01
+Private wnrel      := "ROrcXRea" // Coloque aqui o nome do arquivo usado para impressao em disco
+
+Private cString := "SE7"
+
+
+dDataRel := CTOD("")
+
+//Variaveis de Totalizadores Gastos Gerais/Metas
+//Orçado Gastos Gerais
+nOrc1GADM := 0
+nOrc2GADM := 0
+nOrc3GADM := 0
+nOrc4GADM := 0
+nOrc5GADM := 0
+nOrc6GADM := 0
+nOrc7GADM := 0
+nOrc8GADM := 0
+nOrc9GADM := 0
+nOrc10GADM := 0
+nOrc11GADM := 0
+nOrc12GADM := 0
+
+//Variaveis de Totalizadores Gastos Gerais/Metas
+//Realizado Gastos Gerais
+nRea1GADM := 0
+nRea2GADM := 0
+nRea3GADM := 0
+nRea4GADM := 0
+nRea5GADM := 0
+nRea6GADM := 0
+nRea7GADM := 0
+nRea8GADM := 0
+nRea9GADM := 0
+nRea10GADM := 0
+nRea11GADM := 0
+nRea12GADM := 0
+
+//Variaveis de Totalizadores Global Gastos Gerais/Metas
+//Orçado Global Gastos Gerais
+nGlbOr1GG := 0
+nGlbOr2GG := 0
+nGlbOr3GG := 0
+nGlbOr4GG := 0
+nGlbOr5GG := 0
+nGlbOr6GG := 0
+nGlbOr7GG := 0
+nGlbOr8GG := 0
+nGlbOr9GG := 0
+nGlbOr10GG := 0
+nGlbOr11GG := 0
+nGlbOr12GG := 0
+
+//Variaveis de Totalizadores Global Gastos Gerais/Metas
+//Realizado Global Gastos Gerais
+nGbRea1GG := 0
+nGbRea2GG := 0
+nGbRea3GG := 0
+nGbRea4GG := 0
+nGbRea5GG := 0
+nGbRea6GG := 0
+nGbRea7GG := 0
+nGbRea8GG := 0
+nGbRea9GG := 0
+nGbRea10GG := 0
+nGbRea11GG := 0
+nGbRea12GG := 0
+
+
+/*
+
+//Criação do Arquivo Temporário
+If SELECT("OXR") > 0
+   DbSelectArea("OXR")
+   DbCloseArea()
+EndIf
+
+cArqInd := "ORCXREA.CDX"
+While File(cArqInd)
+   DELETE FILE &cArqInd
+EndDo
+
+aCampos := {}
+//Campos para guardar Metas Orçadas para cada natureza
+Aadd(aCampos, {"NATUREZ","C",6,0})
+Aadd(aCampos, {"DESC","C",30,0})
+Aadd(aCampos, {"MES1","N",14,02})
+Aadd(aCampos, {"MES2","N",14,02})
+Aadd(aCampos, {"MES3","N",14,02})
+Aadd(aCampos, {"MES4","N",14,02})
+Aadd(aCampos, {"MES5","N",14,02})
+Aadd(aCampos, {"MES6","N",14,02})
+Aadd(aCampos, {"MES7","N",14,02})
+Aadd(aCampos, {"MES8","N",14,02})
+Aadd(aCampos, {"MES9","N",14,02})
+Aadd(aCampos, {"MES10","N",14,02})
+Aadd(aCampos, {"MES11","N",14,02})
+Aadd(aCampos, {"MES12","N",14,02})
+//Campos para guardar os Gastos Realizados para cada natureza
+Aadd(aCampos, {"REA1","N",14,02})
+Aadd(aCampos, {"REA2","N",14,02})
+Aadd(aCampos, {"REA3","N",14,02})
+Aadd(aCampos, {"REA4","N",14,02})
+Aadd(aCampos, {"REA5","N",14,02})
+Aadd(aCampos, {"REA6","N",14,02})
+Aadd(aCampos, {"REA7","N",14,02})
+Aadd(aCampos, {"REA8","N",14,02})
+Aadd(aCampos, {"REA9","N",14,02})
+Aadd(aCampos, {"REA10","N",14,02})
+Aadd(aCampos, {"REA11","N",14,02})
+Aadd(aCampos, {"REA12","N",14,02})
+//Campo para identificar que a natureza do Adm tem Meta de Orçamento
+Aadd(aCampos, {"MTORCADM","C",01,00})
+
+
+DbCreate("ORCXREA.DBF",aCampos)
+
+DbUseArea(.T.,"DBFCDX","ORCXREA.DBF","OXR")
+
+INDEX ON OXR->NATUREZ TO ORCXREA
+
+*/
+
+//****************** Aa Naturezas da Mitto foi disponibilizada por Patrícia através de .DOC em 29/05/2008.
+
+//TOTAL DE GASTOS DA ÁREA COMERCIAL (Micheletto)
+Private cGGNatComl := "100201,100202,100203,100204,100206,100207,100208,100209,100210,100211,100212,100213,100214,"
+        cGGNatComl += "100216,100221,100222,200201,200202,200203,200204,200205,200206,200207,600101,600102,600303"
+
+//Naturezas de GASTOS META ORCAMENTO COML (Micheletto)
+Private cNtGMtOrCml:= "100204,100206,100207,100208,100209,100214,200201,200202,200203,200205,200206,600303"
+
+//GASTOS GERIAS COMERCIO EXTERIOR (Micheletto)
+Private cGGCENat := "100205,100223,100224,100225,100226,100227,100228,100229,100230,100231,100232,100233,100234,"
+        cGGCENat := "100235,200212,200213,200214,200215,200216,200217,200218,700309,700310"
+        
+//METAS DE ORÇAMENTO PARA O COMÉRCIO EXTERIOR (Micjeletto)
+Private cMtCENat := "100205,100223,100224,100225,100226,100231,200212,200213,200214,200216,200217"
+
+
+//TOTAL DE GASTOS REALIZADOS PELA INDUSTRIA (Micheletto)
+Private cGASTGERIND := "100301,100302,100303,100304,100305,100306,100307,100308,100309,100310,100311,100312,100313,"
+        cGASTGERIND += "100317,100401,100402,100403,100404,100405,100406,100407,100408,100409,100410,100411,100412,"
+        cGASTGERIND += "100417,200109,200110,200111,200132,200139,200140,200141,200142,200143,200144,200156,200157,"
+        cGASTGERIND += "200161,200301,200302,200303,200304,200305,200306,200307,200308,200309,200310,200311,200312,"
+        cGASTGERIND += "200313,200314,200315,200316,200317,200318,200319,200320,200321,200322,200323,200324,200325,"
+        cGASTGERIND += "200326,200327,200328,200329,200360,200361,200362,200363,200364,200365,200366,200367,200368,"
+        cGASTGERIND += "200369,200370,200372,200373,200374,200375,200376,200377,200378,200401,200402,200403,200404,"
+        cGASTGERIND += "200405,200406,200407,200408,200410,200411,200412,200416,200417,200418,200419,200420,200421,"
+        cGASTGERIND += "600201,600301,600601,700301,700303,700304,700305,700306,700307,700308,700311"
+
+//TOTAL DE GASTOS REALIZADOS NAS NATUREZAS QUE COMPÕE AS METAS DE ORÇAMENTO DA INDUSTRIA (Micheletto)
+Private cNtGstMtOrInd := "100303,100305,100306,100307,100311,100312,100403,100405,100406,100407,100411,100412,200139,"
+        cNtGstMtOrInd += "200140,200302,200304,200305,200308,200309,200310,200311,200312,200316,200317,200318,200319,"
+        cNtGstMtOrInd += "200320,200321,200322,200323,200324,200325,200326,200327,200328,200402,200404,200405,200408,"
+        cNtGstMtOrInd += "200410,200411,200412,200416,200417,200418,200419,200420,200421,600301"
+
+
+//Novas Naturezas do GASTOS GERAIS DO ADM (Micheletto)
+Private cGstGerADM  := "100101,100102,100103,100104,100105,100106,100107,100108,100109,100110,100111,100112,100113,"
+        cGstGerADM  += "100114,100115,100116,100117,100118,100119,100121,100122,100123,200101,200102,200103,200104,"
+        cGstGerADM  += "200105,200106,200107,200108,200112,200113,200114,200115,200116,200117,200118,200119,200120,"
+        cGstGerADM  += "200121,200122,200123,200124,200126,200127,200129,200130,200131,200133,200134,200135,200136,"
+        cGstGerADM  += "200137,200138,200145,200146,200147,200148,200149,200150,200151,200152,200153,200154,200155,"
+        cGstGerADM  += "200158,200159,200160,200162,200163,200164,200208,200211,200501,200502,200503,200504,200505,"
+        cGstGerADM  += "200506,200507,200508,200509,200510,500101,500102,500103,500104,600302,700206,COFINS,CSLL,IRF,"
+        cGstGerADM  += "ISS,PIS,RETENCOES"
+        
+//NATUREZAS QUE COMPÕEM AS METAS DE ORÇAMENTO ADM (Micheletto)
+Private AdmMetasOrc := "100103,100105,100106,100107,100111,100112,100114,100115,100116,100117,100123,200102,200104,"
+        AdmMetasOrc += "200105,200107,200112,200113,200114,200116,200117,200118,200121,200123,200124,200129,200131,"
+        AdmMetasOrc += "200133,200134,200135,200136,200137,200501,200502,200503,200504,200505,200506,200507,200508,"
+        AdmMetasOrc += "200509,200510,500102,500103,500104,600302"
+
+        
+//GASTOS GERAIS DE NATUREZAS DIVERSAS (Micheletto)
+Private cGGDiverNat := ""
+//METAS ORÇAMENTOS DE NATUREZAS DIVERSAS
+Private cMtDiverNat := ""
+
+dbSelectArea("SE7")
+dbSetOrder(1)
+
+
+AjstSx1()
+
+Pergunte(cPerg,.F.)
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Monta a interface padrao com o usuario...                           ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+wnrel := SetPrint(cString,NomeProg,cPerg,@titulo,cDesc1,cDesc2,cDesc3,.F.,aOrd,.F.,Tamanho,,.F.)
+
+dDataRel := MV_PAR01
+nDeptos  := MV_PAR02
+lDiversas  := .F. //IIF(MV_PAR03 == 1,.T.,.F.) //A Micheletto não disponibiliza de Naturezas Diversas (30/05/2008)
+
+lComercio := IIF(nDeptos == 1 .Or. nDeptos == 2,.T.,.F.)
+lIndustria := IIF(nDeptos == 1 .Or. nDeptos == 3,.T.,.F.)
+lAdmFin    := IIF(nDeptos == 1 .Or. nDeptos == 4,.T.,.F.)
+lComExter  := IIF(nDeptos == 1 .Or. nDeptos == 5,.T.,.F.)
+
+
+
+If nLastKey == 27
+	Return
+Endif
+
+SetDefault(aReturn,cString)
+
+If nLastKey == 27
+   Return
+Endif
+
+nTipo := If(aReturn[4]==1,15,18)
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Processamento. RPTSTATUS monta janela com a regua de processamento. ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+RptStatus({|| RunReport(Cabec1,Cabec2,Titulo,nLin) },Titulo)
+
+Return
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºFun‡„o    ³RUNREPORT º Autor ³ AP6 IDE            º Data ³  28/05/08   º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDescri‡„o ³ Funcao auxiliar chamada pela RPTSTATUS. A funcao RPTSTATUS º±±
+±±º          ³ monta a janela com a regua de processamento.               º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ Programa principal                                         º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+/*/
+
+Static Function RunReport(Cabec1,Cabec2,Titulo,nLin)
+
+Local nOrdem
+
+dbSelectArea(cString)
+dbSetOrder(1)
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ SETREGUA -> Indica quantos registros serao processados para a regua ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+//SetRegua(RecCount())
+
+
+If lAdmFin
+   Processa({||RunAdm()},"Calculando Depto. Administrativo ...")
+EndIf
+
+If lComercio
+   Processa({||RunCom()},"Calculando Depto. Comercial ...")
+EndIf
+
+If lComExter
+   Processa({||RunExter()},"Calculando Depto. Com. Exterior ...")
+EndIf
+
+
+If lIndustria
+   Processa({||RunIndl()},"Calculando Depto. Industria ...")
+EndIf
+
+If lDiversas
+   Processa({||RunDiv()},"Calculando Naturezas Diversas ...")
+EndIf
+
+/*************************************************
+* Imprime Totalizadores Global dos Gastos Gerias (Orçado / Realizado)
+**************************************************/
+
+nLin := nLin + 2 // Avanca a linha de impressao
+
+If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+    Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+    nLin := 9 //8
+Endif
+
+@nLin,000 PSAY "Totais Global de Gastos Gerais Orçados ... "
+@nLin,054 PSAY nGlbOr1GG  Picture "@E 9,999,999.99"
+@nLin,068 PSAY nGlbOr2GG  Picture "@E 9,999,999.99"
+@nLin,082 PSAY nGlbOr3GG  Picture "@E 9,999,999.99"
+@nLin,096 PSAY nGlbOr4GG  Picture "@E 9,999,999.99"
+@nLin,110 PSAY nGlbOr5GG  Picture "@E 9,999,999.99"
+@nLin,124 PSAY nGlbOr6GG  Picture "@E 9,999,999.99"
+@nLin,138 PSAY nGlbOr7GG  Picture "@E 9,999,999.99"
+@nLin,152 PSAY nGlbOr8GG  Picture "@E 9,999,999.99"
+@nLin,166 PSAY nGlbOr9GG  Picture "@E 9,999,999.99"
+@nLin,180 PSAY nGlbOr10GG Picture "@E 9,999,999.99"
+@nLin,194 PSAY nGlbOr11GG Picture "@E 9,999,999.99"
+@nLin,208 PSAY nGlbOr12GG Picture "@E 9,999,999.99"
+
+nLin := nLin + 1 // Avanca a linha de impressao
+
+If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+    Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+    nLin := 9 //8
+Endif
+
+@nLin,000 PSAY "Totais Global de Gastos Gerais Realizados ... "
+@nLin,054 PSAY nGbRea1GG  Picture "@E 9,999,999.99"
+@nLin,068 PSAY nGbRea2GG  Picture "@E 9,999,999.99"
+@nLin,082 PSAY nGbRea3GG  Picture "@E 9,999,999.99"
+@nLin,096 PSAY nGbRea4GG  Picture "@E 9,999,999.99"
+@nLin,110 PSAY nGbRea5GG  Picture "@E 9,999,999.99"
+@nLin,124 PSAY nGbRea6GG  Picture "@E 9,999,999.99"
+@nLin,138 PSAY nGbRea7GG  Picture "@E 9,999,999.99"
+@nLin,152 PSAY nGbRea8GG  Picture "@E 9,999,999.99"
+@nLin,166 PSAY nGbRea9GG  Picture "@E 9,999,999.99"
+@nLin,180 PSAY nGbRea10GG Picture "@E 9,999,999.99"
+@nLin,194 PSAY nGbRea11GG Picture "@E 9,999,999.99"
+@nLin,208 PSAY nGbRea12GG Picture "@E 9,999,999.99"
+
+nLin := nLin + 1 // Avanca a linha de impressao
+
+If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+   Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+   nLin := 9 //8
+Endif
+
+@nLin,000 PSAY "Totais Global % Variação de Gastos Gerais ..."
+@nLin,054 PSAY IIf(nGlbOr1GG  > 0, ((nGbRea1GG /nGlbOr1GG) *100),0) Picture "@E 9,999,999.99"
+@nLin,068 PSAY IIf(nGlbOr2GG  > 0, ((nGbRea2GG /nGlbOr2GG) *100),0) Picture "@E 9,999,999.99"
+@nLin,082 PSAY IIf(nGlbOr3GG  > 0, ((nGbRea3GG /nGlbOr3GG) *100),0) Picture "@E 9,999,999.99"
+@nLin,096 PSAY IIf(nGlbOr4GG  > 0, ((nGbRea4GG /nGlbOr4GG) *100),0) Picture "@E 9,999,999.99"
+@nLin,110 PSAY IIf(nGlbOr5GG  > 0, ((nGbRea5GG /nGlbOr5GG) *100),0) Picture "@E 9,999,999.99"
+@nLin,124 PSAY IIf(nGlbOr6GG  > 0, ((nGbRea6GG /nGlbOr6GG) *100),0) Picture "@E 9,999,999.99"
+@nLin,138 PSAY IIf(nGlbOr7GG  > 0, ((nGbRea7GG /nGlbOr7GG) *100),0) Picture "@E 9,999,999.99"
+@nLin,152 PSAY IIf(nGlbOr8GG  > 0, ((nGbRea8GG /nGlbOr8GG) *100),0) Picture "@E 9,999,999.99"
+@nLin,166 PSAY IIf(nGlbOr9GG  > 0, ((nGbRea9GG /nGlbOr9GG) *100),0) Picture "@E 9,999,999.99"
+@nLin,180 PSAY IIf(nGlbOr10GG  > 0, ((nGbRea10GG /nGlbOr10GG) *100),0) Picture "@E 9,999,999.99"
+@nLin,194 PSAY IIf(nGlbOr11GG  > 0, ((nGbRea11GG /nGlbOr11GG) *100),0) Picture "@E 9,999,999.99"
+@nLin,208 PSAY IIf(nGlbOr12GG  > 0, ((nGbRea12GG /nGlbOr12GG) *100),0) Picture "@E 9,999,999.99"
+        
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Finaliza a execucao do relatorio...                                 ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+SET DEVICE TO SCREEN
+
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³ Se impressao em disco, chama o gerenciador de impressao...          ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+If aReturn[5]==1
+   dbCommitAll()
+   SET PRINTER TO
+   OurSpool(wnrel)
+Endif
+
+MS_FLUSH()
+
+Return
+
+
+
+Static Function AjstSx1()
+
+Local aArea := GetArea()
+
+//PutSx1(cGrupo,cOrdem,cPergunt  ,"","",cVar    ,cTipo,nTamanho,nDecimal,nPresel,cGSC,cValid,cF3,cGrpSxg,"",cVar01    ,cDef01 ,"","",cCnt01,cDef02       ,"","",cDef03     ,"","",cDef04      ,"","",cDef05,"","",aHelpPor,"","",cHelp)
+  PutSx1(cPerg ,"01","Data de Referencia" ,"Data de Referencia","Data de Referencia","mv_ch1","D"  ,8       ,0       ,0      ,"G" ,""    ,"" ,""     ,"","MV_PAR01",""     ,"","",""    ,""           ,"","",""         ,"","",""          ,"","","","","")
+  PutSx1(cPerg ,"02","Departamento"   ,"Departamento","Departamento","mv_ch2","N"  ,1       ,0       ,0      ,"C" ,""    ,"" ,""     ,"","MV_PAR02","Todos","","",""    ,"Comercio","","","Industria","","","Administrativo","","","Com.Exterior","","")
+  PutSx1(cPerg ,"03","Lista Nat. Diversas","","","mv_ch3","N"  ,1       ,0       ,0      ,"C" ,""    ,"" ,""     ,"","MV_PAR03","Sim"  ,"","",""    ,"Nao"        ,"","",""         ,"","",""          ,"","","","","")
+
+RestArea(aArea)
+
+Return(.T.)
+
+
+   Static Function RunAdm
+   
+   //Criação do Arquivo Temporário
+   If SELECT("OXR") > 0
+      DbSelectArea("OXR")
+      DbCloseArea()
+   EndIf
+
+   cArqInd := "ORCXREA.CDX"
+   While File(cArqInd)
+      DELETE FILE &cArqInd
+   EndDo
+
+   aCampos := {}
+   //Campos para guardar Metas Orçadas para cada natureza
+   Aadd(aCampos, {"NATUREZ","C",6,0})
+   Aadd(aCampos, {"DESC","C",30,0})
+   Aadd(aCampos, {"MES1","N",14,02})
+   Aadd(aCampos, {"MES2","N",14,02})
+   Aadd(aCampos, {"MES3","N",14,02})
+   Aadd(aCampos, {"MES4","N",14,02})
+   Aadd(aCampos, {"MES5","N",14,02})
+   Aadd(aCampos, {"MES6","N",14,02})
+   Aadd(aCampos, {"MES7","N",14,02})
+   Aadd(aCampos, {"MES8","N",14,02})
+   Aadd(aCampos, {"MES9","N",14,02})
+   Aadd(aCampos, {"MES10","N",14,02})
+   Aadd(aCampos, {"MES11","N",14,02})
+   Aadd(aCampos, {"MES12","N",14,02})
+   //Campos para guardar os Gastos Realizados para cada natureza
+   Aadd(aCampos, {"REA1","N",14,02})
+   Aadd(aCampos, {"REA2","N",14,02})
+   Aadd(aCampos, {"REA3","N",14,02})
+   Aadd(aCampos, {"REA4","N",14,02})
+   Aadd(aCampos, {"REA5","N",14,02})
+   Aadd(aCampos, {"REA6","N",14,02})
+   Aadd(aCampos, {"REA7","N",14,02})
+   Aadd(aCampos, {"REA8","N",14,02})
+   Aadd(aCampos, {"REA9","N",14,02})
+   Aadd(aCampos, {"REA10","N",14,02})
+   Aadd(aCampos, {"REA11","N",14,02})
+   Aadd(aCampos, {"REA12","N",14,02})
+   //Campo para identificar que a natureza do Adm tem Meta de Orçamento
+   Aadd(aCampos, {"MTORCADM","C",01,00})
+
+
+   DbCreate("ORCXREA.DBF",aCampos)
+
+   DbUseArea(.T.,"DBFCDX","ORCXREA.DBF","OXR")
+
+   INDEX ON OXR->NATUREZ TO ORCXREA
+
+   /************************
+   *
+   * GASTOS GERAIS ADM. (ORÇADO)
+   *
+   ************************/
+   
+   //ProcRegua(3)
+   
+   //For nMes := 1 To 3
+      
+   //   IncProc("Gastos Metas/Orc Comercio(Orçado) Proc. "+Alltrim(Str(nMes))+" / 3")
+      
+      cQuery := " SELECT SED.ED_CODIGO,SE7.E7_ANO,SE7.E7_VALJAN1,SE7.E7_VALFEV1,SE7.E7_VALMAR1,SE7.E7_VALABR1," 
+      cQuery += " SE7.E7_VALMAI1,SE7.E7_VALJUN1,SE7.E7_VALJUL1,SE7.E7_VALAGO1,SE7.E7_VALSET1,SE7.E7_VALOUT1,"
+      cQuery += " SE7.E7_VALNOV1,SE7.E7_VALDEZ1"
+      cQuery += " FROM "+RetSQLName("SED")+" SED LEFT OUTER JOIN "+RetSqlName("SE7")+" SE7 "
+      cQuery += "                                ON SED.ED_CODIGO = SE7.E7_NATUREZ"
+      cQuery += "                               AND SE7.E7_ANO = '" +Substr(DTOS(dDataRel),1,4)+ "'"
+      cQuery += "                               AND SE7.E7_FILIAL = '"+xFilial("SE7")+"'"
+      cQuery += "                               AND SE7.D_E_L_E_T_ = ' '"
+      cQuery += " WHERE SED.D_E_L_E_T_ = ' '"
+      cQuery += "   AND SUBSTRING(SED.ED_CODIGO,1,6) IN "+FormatIn(cGstGerADM,",")      
+      
+      MemoWrite("C:\TEMP\ROrcXRea_OrçaGerADM.SQL",cQuery)
+      
+      TCQuery cQuery NEW ALIAS "ORGAD"
+      
+      TcSetField("ORGAD","E7_VALJAN1","N",14,02)
+      TcSetField("ORGAD","E7_VALFEV1","N",14,02)
+      TcSetField("ORGAD","E7_VALMAR1","N",14,02)
+      TcSetField("ORGAD","E7_VALABR1","N",14,02)
+      TcSetField("ORGAD","E7_VALMAI1","N",14,02)
+      TcSetField("ORGAD","E7_VALJUN1","N",14,02)
+      TcSetField("ORGAD","E7_VALJUL1","N",14,02)
+      TcSetField("ORGAD","E7_VALAGO1","N",14,02)
+      TcSetField("ORGAD","E7_VALSET1","N",14,02)
+      TcSetField("ORGAD","E7_VALOUT1","N",14,02)
+      TcSetField("ORGAD","E7_VALNOV1","N",14,02)
+      TcSetField("ORGAD","E7_VALDEZ1","N",14,02)
+      
+      DbSelectArea("ORGAD")
+      While !Eof()
+         
+         DbSelectArea("OXR")
+         If DbSeek(ORGAD->ED_CODIGO)
+            RecLock("OXR",.F.)
+               OXR->MES1 += ORGAD->E7_VALJAN1
+               OXR->MES2 += ORGAD->E7_VALFEV1               
+               OXR->MES3 += ORGAD->E7_VALMAR1
+               OXR->MES4 += ORGAD->E7_VALABR1
+               OXR->MES5 += ORGAD->E7_VALMAI1
+               OXR->MES6 += ORGAD->E7_VALJUN1
+               OXR->MES7 += ORGAD->E7_VALJUL1
+               OXR->MES8 += ORGAD->E7_VALAGO1
+               OXR->MES9 += ORGAD->E7_VALSET1
+               OXR->MES10 += ORGAD->E7_VALOUT1
+               OXR->MES11 += ORGAD->E7_VALNOV1
+               OXR->MES12 += ORGAD->E7_VALDEZ1
+              MsUnLock()
+         Else
+            RecLock("OXR",.T.)
+               OXR->NATUREZ := ORGAD->ED_CODIGO
+               OXR->MES1 := ORGAD->E7_VALJAN1
+               OXR->MES2 := ORGAD->E7_VALFEV1               
+               OXR->MES3 := ORGAD->E7_VALMAR1
+               OXR->MES4 := ORGAD->E7_VALABR1
+               OXR->MES5 := ORGAD->E7_VALMAI1
+               OXR->MES6 := ORGAD->E7_VALJUN1
+               OXR->MES7 := ORGAD->E7_VALJUL1
+               OXR->MES8 := ORGAD->E7_VALAGO1
+               OXR->MES9 := ORGAD->E7_VALSET1
+               OXR->MES10 := ORGAD->E7_VALOUT1
+               OXR->MES11 := ORGAD->E7_VALNOV1
+               OXR->MES12 := ORGAD->E7_VALDEZ1
+              MsUnLock()
+         EndIf
+         
+         DbSelectArea("ORGAD")
+         DbSkip()
+         
+      EndDo
+      DbSelectArea("ORGAD")
+      DbCloseArea()
+
+   //Next nMes
+
+   /************************
+   *
+   * GASTOS GERAIS ADM. (REALIZADO)
+   *
+   ************************/
+   
+   //ProcRegua(12)
+   //For nMes := 1 To 12 //1 A 3 - Gastos Gerais Adm.
+                      
+   //   IncProc(" Calc.Gastos Gerais Adm. Proc. "+Alltrim(Str(nMes))+" / 12")
+      cQuery := " SELECT SUBSTRING(SE5.E5_DATA,1,6) AS MESGST,SUBSTRING(SE5.E5_NATUREZ,1,6) AS NATUREZ,SUM(SE5.E5_VALOR) AS VLGGADM "
+      cQuery += " FROM " + RetSqlName("SE5")+" SE5 "
+      cQuery += " WHERE SE5.E5_RECPAG = 'P'"
+      
+      cQuery += "    AND  SUBSTRING(SE5.E5_DATA,1,4) = '" +Substr(DTOS(dDataRel),1,4)+ "'"
+      
+      cQuery += "  AND SUBSTRING(SE5.E5_NATUREZ,1,6) IN "+FormatIn(cGstGerADM,",")
+
+      cQuery += "  AND SE5.D_E_L_E_T_ = ' '"
+      cQuery += "  AND SE5.E5_TIPODOC IN ('VL','BA')"
+      cQuery += "  AND SE5.E5_SITUACA = ' '"
+      cQuery += "  AND SUBSTRING(SE5.E5_NUMERO,1,6)  <> '      '"
+      cQuery += "  AND SE5.E5_FILIAL = '" + xFilial("SE5") + "'"
+      cQuery += "  AND (SELECT COUNT(*)"
+      cQuery += "         FROM "+RetSQLName("SE5")+" TMP"
+      cQuery += "       WHERE TMP.E5_FILIAL = '"+xFilial("SE5")+"'"
+      cQuery += "         AND TMP.E5_FILIAL = SE5.E5_FILIAL"
+      cQuery += "         AND TMP.E5_PREFIXO = SE5.E5_PREFIXO"
+      cQuery += "         AND TMP.E5_NUMERO = SE5.E5_NUMERO"
+      cQuery += "         AND TMP.E5_PARCELA = SE5.E5_PARCELA"
+      cQuery += "         AND TMP.E5_TIPO = SE5.E5_TIPO"
+      cQuery += "         AND TMP.E5_CLIFOR = SE5.E5_CLIFOR"
+      cQuery += "         AND TMP.E5_LOJA = SE5.E5_LOJA"
+      cQuery += "         AND TMP.E5_VALOR = SE5.E5_VALOR"   
+      cQuery += "         AND TMP.E5_SEQ = SE5.E5_SEQ"
+      cQuery += "         AND TMP.E5_TIPODOC = 'ES'"
+      cQuery += "         AND TMP.D_E_L_E_T_ <> '*') = 0"
+      cQuery += " GROUP BY SUBSTRING(SE5.E5_DATA,1,6),SUBSTRING(SE5.E5_NATUREZ,1,6)"
+      cQuery += " ORDER BY SUBSTRING(SE5.E5_NATUREZ,1,6)"
+      
+      MemoWrite("C:\TEMP\ROrcXRea_GastGerADM.SQL",cQuery)
+      
+      TCQuery cQuery NEW ALIAS "GADM"
+      
+      TcSetField("GADM","VLGGADM","N",14,02)
+      
+      DbSelectArea("GADM")
+      While !Eof()
+         
+         DbSelectArea("OXR")
+         If DbSeek(GADM->NATUREZ)
+            RecLock("OXR",.F.)
+               If Substr(GADM->MESGST,5,2) == "01"
+                  OXR->REA1 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "02"
+                  OXR->REA2 += GADM->VLGGADM               
+               ElseIf Substr(GADM->MESGST,5,2) == "03"
+                  OXR->REA3 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "04"
+                  OXR->REA4 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "05"
+                  OXR->REA5 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "06"
+                  OXR->REA6 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "07"
+                  OXR->REA7 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "08"
+                  OXR->REA8 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "09"
+                  OXR->REA9 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "10"
+                  OXR->REA10 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "11"
+                  OXR->REA11 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "12"
+                  OXR->REA12 += GADM->VLGGADM
+               EndIf
+            MsUnLock()
+         Else
+            RecLock("OXR",.T.)
+               OXR->NATUREZ := GADM->NATUREZ
+               If Substr(GADM->MESGST,5,2) == "01"
+                  OXR->REA1 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "02"
+                  OXR->REA2 := GADM->VLGGADM               
+               ElseIf Substr(GADM->MESGST,5,2) == "03"
+                  OXR->REA3 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "04"
+                  OXR->REA4 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "05"
+                  OXR->REA5 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "06"
+                  OXR->REA6 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "07"
+                  OXR->REA7 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "08"
+                  OXR->REA8 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "09"
+                  OXR->REA9 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "10"
+                  OXR->REA10 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "11"
+                  OXR->REA11 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "12"
+                  OXR->REA12 := GADM->VLGGADM
+               EndIf
+            MsUnLock()
+         EndIf
+         
+         DbSelectArea("GADM")
+         DbSkip()
+         
+      EndDo
+      DbSelectArea("GADM")
+      DbCloseArea()
+      
+   //Next nMes   
+   
+   //Selecionando e Marcando Naturezas que contém Metas de Orçamentos
+   cQryMTADM := "SELECT ED_CODIGO "
+   cQryMTADM += " FROM "+RetSQLName("SED")
+   cQryMTADM += " WHERE SUBSTRING(ED_CODIGO,1,6) IN "+FormatIn(AdmMetasOrc,",")
+   cQryMTADM += " AND D_E_L_E_T_ <> '*'"
+   
+   TCQuery cQryMTADM New Alias "MTADM"
+   
+   DbSelectArea("MTADM")
+   While !Eof()
+      DbSelectArea("OXR")
+      If DbSeek(SUBSTR(MTADM->ED_CODIGO,1,6))
+         RecLock("OXR",.F.)
+            OXR->MTORCADM := "S"
+         MsUnLock()
+      EndIf
+      DbSelectArea("MTADM")
+      DbSkip()
+   EndDo
+   DbSelectArea("MTADM")
+   DbCloseArea()
+
+   
+
+   For nVez := 1 To 2
+     
+      nLin         := 80
+       
+      If nVez == 1
+         Cabec1       := "                                                                                                        G A S T O S   G E R A I S   D O   A D M I N I S T R A T I V O                                                       "
+      Else
+         Cabec1       := "                                                                                                   M E T A S   DE   O R Ç A M E N T O   D O   A D M I N I S T R A T I V O                                                   "
+      EndIf
+      
+      DbSelectArea("OXR")
+      DbGoTop()
+      While !EOF()
+
+      
+         If nVez == 2 .And. OXR->MTORCADM <> "S" //Na impressão do segundo bloco de naturezas, só apresenta natures
+            DbSelectArea("OXR")                  //que compõem Metas de Orçamentos.
+            DbSkip()
+            Loop
+         EndIf
+      
+         //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         //³ Verifica o cancelamento pelo usuario...                             ³
+         //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+         
+         If lAbortPrint
+            @nLin,00 PSAY "*** CANCELADO PELO OPERADOR ***"
+            Exit
+         Endif
+
+         //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         //³ Impressao do cabecalho do relatorio. . .                            ³
+         //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+         //aLERT("tESTE nTipo "+Alltrim(Str(nTipo)))
+         If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+    
+         //          10        20        30        40        50        60        70        80        90       100       110       120      130       140        150       160       170       180       190       200      210        220
+         // 01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+         //"                                                                                                        G A S T O S   G E R A I S   D O   A D M I N I S T R A T I V O                                                       "
+         //"                                                                                                   M E T A S   DE   O R Ç A M E N T O   D O   A D M I N I S T R A T I V O                                                   "
+         //"Natureza   Descrição                                       Janeiro     Fevereiro         Março         Abril          Maio         Junho         Julho        Agosto      Setembro       Outubro      Novembro      Dezembro"
+         // xxxxxxxxxX xxxxxxxxxXxxxxxxxxxXxxxxxxxxxX      Orçado 9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99
+         //                                             Realizado
+         //                                            A Realizar
+         //                                                  Real
+         //                                            % Variação
+
+         @nLin,000 PSAY Substr(OXR->NATUREZ,1,6)
+         @nLin,011 PSAY Substr(Posicione("SED",1,xFilial("SED")+Substr(OXR->NATUREZ,1,6),"ED_DESCRIC"),1,30) 
+         @nLin,047 PSAY "Orçado"
+         @nLin,054 PSAY OXR->MES1  Picture "@E 9,999,999.99"
+         @nLin,068 PSAY OXR->MES2  Picture "@E 9,999,999.99"
+         @nLin,082 PSAY OXR->MES3  Picture "@E 9,999,999.99"
+         @nLin,096 PSAY OXR->MES4  Picture "@E 9,999,999.99"
+         @nLin,110 PSAY OXR->MES5  Picture "@E 9,999,999.99"
+         @nLin,124 PSAY OXR->MES6  Picture "@E 9,999,999.99"
+         @nLin,138 PSAY OXR->MES7  Picture "@E 9,999,999.99"
+         @nLin,152 PSAY OXR->MES8  Picture "@E 9,999,999.99"
+         @nLin,166 PSAY OXR->MES9  Picture "@E 9,999,999.99"
+         @nLin,180 PSAY OXR->MES10 Picture "@E 9,999,999.99"
+         @nLin,194 PSAY OXR->MES11 Picture "@E 9,999,999.99"
+         @nLin,208 PSAY OXR->MES12 Picture "@E 9,999,999.99"
+   
+         nLin := nLin + 1 // Avanca a linha de impressao
+         If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+   
+         @nLin,044 PSAY "Realizado"
+         @nLin,054 PSAY OXR->REA1  Picture "@E 9,999,999.99"
+         @nLin,068 PSAY OXR->REA2  Picture "@E 9,999,999.99"
+         @nLin,082 PSAY OXR->REA3  Picture "@E 9,999,999.99"
+         @nLin,096 PSAY OXR->REA4  Picture "@E 9,999,999.99"
+         @nLin,110 PSAY OXR->REA5  Picture "@E 9,999,999.99"
+         @nLin,124 PSAY OXR->REA6  Picture "@E 9,999,999.99"
+         @nLin,138 PSAY OXR->REA7  Picture "@E 9,999,999.99"
+         @nLin,152 PSAY OXR->REA8  Picture "@E 9,999,999.99"
+         @nLin,166 PSAY OXR->REA9  Picture "@E 9,999,999.99"
+         @nLin,180 PSAY OXR->REA10 Picture "@E 9,999,999.99"
+         @nLin,194 PSAY OXR->REA11 Picture "@E 9,999,999.99"
+         @nLin,208 PSAY OXR->REA12 Picture "@E 9,999,999.99"
+
+
+         nLin := nLin + 1 // Avanca a linha de impressao
+         If  nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+   
+         @nLin,043 PSAY "% Variação"
+         @nLin,054 PSAY IIf(OXR->MES1  > 0, ((OXR->REA1 /OXR->MES1) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,068 PSAY IIf(OXR->MES2  > 0, ((OXR->REA2 /OXR->MES2) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,082 PSAY IIf(OXR->MES3  > 0, ((OXR->REA3 /OXR->MES3) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,096 PSAY IIf(OXR->MES4  > 0, ((OXR->REA4 /OXR->MES4) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,110 PSAY IIf(OXR->MES5  > 0, ((OXR->REA5 /OXR->MES5) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,124 PSAY IIf(OXR->MES6  > 0, ((OXR->REA6 /OXR->MES6) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,138 PSAY IIf(OXR->MES7  > 0, ((OXR->REA7 /OXR->MES7) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,152 PSAY IIf(OXR->MES8  > 0, ((OXR->REA8 /OXR->MES8) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,166 PSAY IIf(OXR->MES9  > 0, ((OXR->REA9 /OXR->MES9) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,180 PSAY IIf(OXR->MES10 > 0, ((OXR->REA10/OXR->MES10)* 100),0) Picture "@E 9,999,999.99"
+         @nLin,194 PSAY IIf(OXR->MES11 > 0, ((OXR->REA11/OXR->MES11)* 100),0) Picture "@E 9,999,999.99"
+         @nLin,208 PSAY IIf(OXR->MES12 > 0, ((OXR->REA12/OXR->MES12)* 100),0) Picture "@E 9,999,999.99"
+
+         //Acumula Totalizadores dos Orçados de Gastos Gerais Adm
+         nOrc1GADM += OXR->MES1
+         nOrc2GADM += OXR->MES2
+         nOrc3GADM += OXR->MES3
+         nOrc4GADM += OXR->MES4
+         nOrc5GADM += OXR->MES5
+         nOrc6GADM += OXR->MES6
+         nOrc7GADM += OXR->MES7
+         nOrc8GADM += OXR->MES8
+         nOrc9GADM += OXR->MES9
+         nOrc10GADM += OXR->MES10
+         nOrc11GADM += OXR->MES11
+         nOrc12GADM += OXR->MES12
+   
+   
+         //Acumula Totalizadores dos Realizados de Gastos Gerais Adm
+         nRea1GADM  += OXR->REA1
+         nRea2GADM  += OXR->REA2
+         nRea3GADM  += OXR->REA3
+         nRea4GADM  += OXR->REA4
+         nRea5GADM  += OXR->REA5
+         nRea6GADM  += OXR->REA6
+         nRea7GADM  += OXR->REA7
+         nRea8GADM  += OXR->REA8
+         nRea9GADM  += OXR->REA9
+         nRea10GADM += OXR->REA10
+         nRea11GADM += OXR->REA11
+         nRea12GADM += OXR->REA12
+
+         If nVez == 1
+            //Acumula Totalizadores Global dos Orçados de Gastos Gerais/Metas
+            nGlbOr1GG += OXR->MES1
+            nGlbOr2GG += OXR->MES2
+            nGlbOr3GG += OXR->MES3
+            nGlbOr4GG += OXR->MES4
+            nGlbOr5GG += OXR->MES5
+            nGlbOr6GG += OXR->MES6
+            nGlbOr7GG += OXR->MES7
+            nGlbOr8GG += OXR->MES8
+            nGlbOr9GG += OXR->MES9
+            nGlbOr10GG += OXR->MES10
+            nGlbOr11GG += OXR->MES11
+            nGlbOr12GG += OXR->MES12
+
+           //Acumula Totalizadores Global dos Realizados de Gastos Gerais/Metas
+           nGbRea1GG += OXR->REA1
+           nGbRea2GG += OXR->REA2
+           nGbRea3GG += OXR->REA3
+           nGbRea4GG += OXR->REA4
+           nGbRea5GG += OXR->REA5
+           nGbRea6GG += OXR->REA6
+           nGbRea7GG += OXR->REA7
+           nGbRea8GG += OXR->REA8
+           nGbRea9GG += OXR->REA9
+           nGbRea10GG += OXR->REA10
+           nGbRea11GG += OXR->REA11
+           nGbRea12GG += OXR->REA12
+         EndIf
+         
+         nLin := nLin + 2 // Avanca a linha de impressao
+
+         DbSkip() // Avanca o ponteiro do registro no arquivo
+   
+      EndDo
+
+      // *************************************************
+      // * Imprime Totalizadores do Gastos Gerias Adm/Fin (Orçado / Realizado)
+      // **************************************************
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais Orçado de Gastos Gerais Adm/Fin ... "
+      Else
+        @nLin,000 PSAY "Tot.Metas Orçado de Gastos Gerais Adm/Fin ... "
+      EndIf
+      @nLin,054 PSAY nOrc1GADM  Picture "@E 9,999,999.99"
+      @nLin,068 PSAY nOrc2GADM  Picture "@E 9,999,999.99"
+      @nLin,082 PSAY nOrc3GADM  Picture "@E 9,999,999.99"
+      @nLin,096 PSAY nOrc4GADM  Picture "@E 9,999,999.99"
+      @nLin,110 PSAY nOrc5GADM  Picture "@E 9,999,999.99"
+      @nLin,124 PSAY nOrc6GADM  Picture "@E 9,999,999.99"
+      @nLin,138 PSAY nOrc7GADM  Picture "@E 9,999,999.99"
+      @nLin,152 PSAY nOrc8GADM  Picture "@E 9,999,999.99"
+      @nLin,166 PSAY nOrc9GADM  Picture "@E 9,999,999.99"
+      @nLin,180 PSAY nOrc10GADM Picture "@E 9,999,999.99"
+      @nLin,194 PSAY nOrc11GADM Picture "@E 9,999,999.99"
+      @nLin,208 PSAY nOrc12GADM Picture "@E 9,999,999.99"
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais Realizado de Gastos Gerais Adm/Fin ... "
+      Else
+         @nLin,000 PSAY "Tot.Metas Realizado de Gastos Gerais Adm/Fin ... "
+      EndIf
+   
+      @nLin,054 PSAY nRea1GADM  Picture "@E 9,999,999.99"
+      @nLin,068 PSAY nRea2GADM  Picture "@E 9,999,999.99"
+      @nLin,082 PSAY nRea3GADM  Picture "@E 9,999,999.99"
+      @nLin,096 PSAY nRea4GADM  Picture "@E 9,999,999.99"
+      @nLin,110 PSAY nRea5GADM  Picture "@E 9,999,999.99"
+      @nLin,124 PSAY nRea6GADM  Picture "@E 9,999,999.99"
+      @nLin,138 PSAY nRea7GADM  Picture "@E 9,999,999.99"
+      @nLin,152 PSAY nRea8GADM  Picture "@E 9,999,999.99"
+      @nLin,166 PSAY nRea9GADM  Picture "@E 9,999,999.99"
+      @nLin,180 PSAY nRea10GADM Picture "@E 9,999,999.99"
+      @nLin,194 PSAY nRea11GADM Picture "@E 9,999,999.99"
+      @nLin,208 PSAY nRea12GADM Picture "@E 9,999,999.99"
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais % Variação de Gastos Gerais Adm/Fin ..."
+      Else
+         @nLin,000 PSAY "Tot.Metas % Variação de Gastos Gerais Adm/Fin ..."
+      EndIf
+   
+      @nLin,054 PSAY IIf(nOrc1GADM  > 0, ((nRea1GADM /nOrc1GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,068 PSAY IIf(nOrc2GADM  > 0, ((nRea2GADM /nOrc2GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,082 PSAY IIf(nOrc3GADM  > 0, ((nRea3GADM /nOrc3GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,096 PSAY IIf(nOrc4GADM  > 0, ((nRea4GADM /nOrc4GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,110 PSAY IIf(nOrc5GADM  > 0, ((nRea5GADM /nOrc5GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,124 PSAY IIf(nOrc6GADM  > 0, ((nRea6GADM /nOrc6GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,138 PSAY IIf(nOrc7GADM  > 0, ((nRea7GADM /nOrc7GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,152 PSAY IIf(nOrc8GADM  > 0, ((nRea8GADM /nOrc8GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,166 PSAY IIf(nOrc9GADM  > 0, ((nRea9GADM /nOrc9GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,180 PSAY IIf(nOrc10GADM  > 0, ((nRea10GADM /nOrc10GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,194 PSAY IIf(nOrc11GADM  > 0, ((nRea11GADM /nOrc11GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,208 PSAY IIf(nOrc12GADM  > 0, ((nRea12GADM /nOrc12GADM) *100),0) Picture "@E 9,999,999.99"
+   
+      nLin := 56 //Força mudança de página
+      
+      //Zera Acumuladores para apresentar valores das naturezas apenas que compõem metas de orçamentos
+
+      //Orçado Gastos Gerais Adm
+      nOrc1GADM := 0
+      nOrc2GADM := 0
+      nOrc3GADM := 0
+      nOrc4GADM := 0
+      nOrc5GADM := 0
+      nOrc6GADM := 0
+      nOrc7GADM := 0
+      nOrc8GADM := 0
+      nOrc9GADM := 0
+      nOrc10GADM := 0
+      nOrc11GADM := 0
+      nOrc12GADM := 0
+
+      //Realizado Gastos Gerais Adm
+      nRea1GADM := 0
+      nRea2GADM := 0
+      nRea3GADM := 0
+      nRea4GADM := 0
+      nRea5GADM := 0
+      nRea6GADM := 0
+      nRea7GADM := 0
+      nRea8GADM := 0
+      nRea9GADM := 0
+      nRea10GADM := 0
+      nRea11GADM := 0
+      nRea12GADM := 0
+
+   Next nVez
+   
+   
+   
+   Return
+   
+   Static Function RunCom
+
+   Local titulo       := "Mapa Comparativo de Naturezas - Orçados X Real"
+   Local Cabec1       := "                                                                                                        G A S T O S   G E R A I S   D O   A D M I N I S T R A T I V O                                                       "
+   Local Cabec2       := "Natureza   Descrição                                       Janeiro     Fevereiro         Março         Abril          Maio         Junho         Julho        Agosto      Setembro       Outubro      Novembro      Dezembro"
+   Local imprime      := .T.
+   Local aOrd := {}
+
+   //Criação do Arquivo Temporário
+   If SELECT("OXR") > 0
+      DbSelectArea("OXR")
+      DbCloseArea()
+   EndIf
+
+   cArqInd := "ORCXREA.CDX"
+   While File(cArqInd)
+      DELETE FILE &cArqInd
+   EndDo
+
+   aCampos := {}
+   //Campos para guardar Metas Orçadas para cada natureza
+   Aadd(aCampos, {"NATUREZ","C",6,0})
+   Aadd(aCampos, {"DESC","C",30,0})
+   Aadd(aCampos, {"MES1","N",14,02})
+   Aadd(aCampos, {"MES2","N",14,02})
+   Aadd(aCampos, {"MES3","N",14,02})
+   Aadd(aCampos, {"MES4","N",14,02})
+   Aadd(aCampos, {"MES5","N",14,02})
+   Aadd(aCampos, {"MES6","N",14,02})
+   Aadd(aCampos, {"MES7","N",14,02})
+   Aadd(aCampos, {"MES8","N",14,02})
+   Aadd(aCampos, {"MES9","N",14,02})
+   Aadd(aCampos, {"MES10","N",14,02})
+   Aadd(aCampos, {"MES11","N",14,02})
+   Aadd(aCampos, {"MES12","N",14,02})
+   //Campos para guardar os Gastos Realizados para cada natureza
+   Aadd(aCampos, {"REA1","N",14,02})
+   Aadd(aCampos, {"REA2","N",14,02})
+   Aadd(aCampos, {"REA3","N",14,02})
+   Aadd(aCampos, {"REA4","N",14,02})
+   Aadd(aCampos, {"REA5","N",14,02})
+   Aadd(aCampos, {"REA6","N",14,02})
+   Aadd(aCampos, {"REA7","N",14,02})
+   Aadd(aCampos, {"REA8","N",14,02})
+   Aadd(aCampos, {"REA9","N",14,02})
+   Aadd(aCampos, {"REA10","N",14,02})
+   Aadd(aCampos, {"REA11","N",14,02})
+   Aadd(aCampos, {"REA12","N",14,02})
+   //Campo para identificar que a natureza do Adm tem Meta de Orçamento
+   Aadd(aCampos, {"MTORCADM","C",01,00})
+
+
+   DbCreate("ORCXREA.DBF",aCampos)
+
+   DbUseArea(.T.,"DBFCDX","ORCXREA.DBF","OXR")
+
+   INDEX ON OXR->NATUREZ TO ORCXREA
+
+   /************************
+   *
+   * GASTOS GERAIS COMERCIO (ORÇADO)
+   *
+   ************************/
+   
+      cQuery := " SELECT SED.ED_CODIGO,SE7.E7_ANO,SE7.E7_VALJAN1,SE7.E7_VALFEV1,SE7.E7_VALMAR1,SE7.E7_VALABR1," 
+      cQuery += " SE7.E7_VALMAI1,SE7.E7_VALJUN1,SE7.E7_VALJUL1,SE7.E7_VALAGO1,SE7.E7_VALSET1,SE7.E7_VALOUT1,"
+      cQuery += " SE7.E7_VALNOV1,SE7.E7_VALDEZ1"
+      cQuery += " FROM "+RetSQLName("SED")+" SED LEFT OUTER JOIN "+RetSqlName("SE7")+" SE7 "
+      cQuery += "                                ON SED.ED_CODIGO = SE7.E7_NATUREZ"
+      cQuery += "                               AND SE7.E7_ANO = '" +Substr(DTOS(dDataRel),1,4)+ "'"
+      cQuery += "                               AND SE7.E7_FILIAL = '"+xFilial("SE7")+"'"
+      cQuery += "                               AND SE7.D_E_L_E_T_ = ' '"
+      cQuery += " WHERE SED.D_E_L_E_T_ = ' '"
+      cQuery += "   AND SUBSTRING(SED.ED_CODIGO,1,6) IN "+FormatIn(cGGNatComl,",")      
+      
+      MemoWrite("C:\TEMP\ROrcXRea_OrçaGerADM.SQL",cQuery)
+      
+      TCQuery cQuery NEW ALIAS "ORGAD"
+      
+      TcSetField("ORGAD","E7_VALJAN1","N",14,02)
+      TcSetField("ORGAD","E7_VALFEV1","N",14,02)
+      TcSetField("ORGAD","E7_VALMAR1","N",14,02)
+      TcSetField("ORGAD","E7_VALABR1","N",14,02)
+      TcSetField("ORGAD","E7_VALMAI1","N",14,02)
+      TcSetField("ORGAD","E7_VALJUN1","N",14,02)
+      TcSetField("ORGAD","E7_VALJUL1","N",14,02)
+      TcSetField("ORGAD","E7_VALAGO1","N",14,02)
+      TcSetField("ORGAD","E7_VALSET1","N",14,02)
+      TcSetField("ORGAD","E7_VALOUT1","N",14,02)
+      TcSetField("ORGAD","E7_VALNOV1","N",14,02)
+      TcSetField("ORGAD","E7_VALDEZ1","N",14,02)
+      
+      DbSelectArea("ORGAD")
+      While !Eof()
+         
+         DbSelectArea("OXR")
+         If DbSeek(ORGAD->ED_CODIGO)
+            RecLock("OXR",.F.)
+               OXR->MES1 += ORGAD->E7_VALJAN1
+               OXR->MES2 += ORGAD->E7_VALFEV1               
+               OXR->MES3 += ORGAD->E7_VALMAR1
+               OXR->MES4 += ORGAD->E7_VALABR1
+               OXR->MES5 += ORGAD->E7_VALMAI1
+               OXR->MES6 += ORGAD->E7_VALJUN1
+               OXR->MES7 += ORGAD->E7_VALJUL1
+               OXR->MES8 += ORGAD->E7_VALAGO1
+               OXR->MES9 += ORGAD->E7_VALSET1
+               OXR->MES10 += ORGAD->E7_VALOUT1
+               OXR->MES11 += ORGAD->E7_VALNOV1
+               OXR->MES12 += ORGAD->E7_VALDEZ1
+              MsUnLock()
+         Else
+            RecLock("OXR",.T.)
+               OXR->NATUREZ := ORGAD->ED_CODIGO
+               OXR->MES1 := ORGAD->E7_VALJAN1
+               OXR->MES2 := ORGAD->E7_VALFEV1               
+               OXR->MES3 := ORGAD->E7_VALMAR1
+               OXR->MES4 := ORGAD->E7_VALABR1
+               OXR->MES5 := ORGAD->E7_VALMAI1
+               OXR->MES6 := ORGAD->E7_VALJUN1
+               OXR->MES7 := ORGAD->E7_VALJUL1
+               OXR->MES8 := ORGAD->E7_VALAGO1
+               OXR->MES9 := ORGAD->E7_VALSET1
+               OXR->MES10 := ORGAD->E7_VALOUT1
+               OXR->MES11 := ORGAD->E7_VALNOV1
+               OXR->MES12 := ORGAD->E7_VALDEZ1
+              MsUnLock()
+         EndIf
+         
+         DbSelectArea("ORGAD")
+         DbSkip()
+         
+      EndDo
+      DbSelectArea("ORGAD")
+      DbCloseArea()
+
+
+   /************************
+   *
+   * GASTOS GERAIS COMERCIO (REALIZADO)
+   *
+   ************************/
+   
+      cQuery := " SELECT SUBSTRING(SE5.E5_DATA,1,6) AS MESGST,SUBSTRING(SE5.E5_NATUREZ,1,6) AS NATUREZ,SUM(SE5.E5_VALOR) AS VLGGADM "
+      cQuery += " FROM " + RetSqlName("SE5")+" SE5 "
+      cQuery += " WHERE SE5.E5_RECPAG = 'P'"
+      
+      cQuery += "    AND  SUBSTRING(SE5.E5_DATA,1,4) = '" +Substr(DTOS(dDataRel),1,4)+ "'"
+      
+      cQuery += "  AND SUBSTRING(SE5.E5_NATUREZ,1,6) IN "+FormatIn(cGGNatComl,",")
+
+      cQuery += "  AND SE5.D_E_L_E_T_ = ' '"
+      cQuery += "  AND SE5.E5_TIPODOC IN ('VL','BA')"
+      cQuery += "  AND SE5.E5_SITUACA = ' '"
+      cQuery += "  AND SUBSTRING(SE5.E5_NUMERO,1,6)  <> '      '"
+      cQuery += "  AND SE5.E5_FILIAL = '" + xFilial("SE5") + "'"
+      cQuery += "  AND (SELECT COUNT(*)"
+      cQuery += "         FROM "+RetSQLName("SE5")+" TMP"
+      cQuery += "       WHERE TMP.E5_FILIAL = '"+xFilial("SE5")+"'"
+      cQuery += "         AND TMP.E5_FILIAL = SE5.E5_FILIAL"
+      cQuery += "         AND TMP.E5_PREFIXO = SE5.E5_PREFIXO"
+      cQuery += "         AND TMP.E5_NUMERO = SE5.E5_NUMERO"
+      cQuery += "         AND TMP.E5_PARCELA = SE5.E5_PARCELA"
+      cQuery += "         AND TMP.E5_TIPO = SE5.E5_TIPO"
+      cQuery += "         AND TMP.E5_CLIFOR = SE5.E5_CLIFOR"
+      cQuery += "         AND TMP.E5_LOJA = SE5.E5_LOJA"
+      cQuery += "         AND TMP.E5_VALOR = SE5.E5_VALOR"   
+      cQuery += "         AND TMP.E5_SEQ = SE5.E5_SEQ"
+      cQuery += "         AND TMP.E5_TIPODOC = 'ES'"
+      cQuery += "         AND TMP.D_E_L_E_T_ <> '*') = 0"
+      cQuery += " GROUP BY SUBSTRING(SE5.E5_DATA,1,6),SUBSTRING(SE5.E5_NATUREZ,1,6)"
+      cQuery += " ORDER BY SUBSTRING(SE5.E5_NATUREZ,1,6)"
+      
+      MemoWrite("C:\TEMP\ROrcXRea_GastGerADM.SQL",cQuery)
+      
+      TCQuery cQuery NEW ALIAS "GADM"
+      
+      TcSetField("GADM","VLGGADM","N",14,02)
+      
+      DbSelectArea("GADM")
+      While !Eof()
+         
+         DbSelectArea("OXR")
+         If DbSeek(GADM->NATUREZ)
+            RecLock("OXR",.F.)
+               If Substr(GADM->MESGST,5,2) == "01"
+                  OXR->REA1 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "02"
+                  OXR->REA2 += GADM->VLGGADM               
+               ElseIf Substr(GADM->MESGST,5,2) == "03"
+                  OXR->REA3 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "04"
+                  OXR->REA4 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "05"
+                  OXR->REA5 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "06"
+                  OXR->REA6 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "07"
+                  OXR->REA7 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "08"
+                  OXR->REA8 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "09"
+                  OXR->REA9 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "10"
+                  OXR->REA10 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "11"
+                  OXR->REA11 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "12"
+                  OXR->REA12 += GADM->VLGGADM
+               EndIf
+            MsUnLock()
+         Else
+            RecLock("OXR",.T.)
+               OXR->NATUREZ := GADM->NATUREZ
+               If Substr(GADM->MESGST,5,2) == "01"
+                  OXR->REA1 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "02"
+                  OXR->REA2 := GADM->VLGGADM               
+               ElseIf Substr(GADM->MESGST,5,2) == "03"
+                  OXR->REA3 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "04"
+                  OXR->REA4 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "05"
+                  OXR->REA5 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "06"
+                  OXR->REA6 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "07"
+                  OXR->REA7 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "08"
+                  OXR->REA8 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "09"
+                  OXR->REA9 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "10"
+                  OXR->REA10 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "11"
+                  OXR->REA11 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "12"
+                  OXR->REA12 := GADM->VLGGADM
+               EndIf
+            MsUnLock()
+         EndIf
+         
+         DbSelectArea("GADM")
+         DbSkip()
+         
+      EndDo
+      DbSelectArea("GADM")
+      DbCloseArea()
+      
+   
+   //Selecionando e Marcando Naturezas que contém Metas de Orçamentos
+   cQryMTADM := "SELECT ED_CODIGO "
+   cQryMTADM += " FROM "+RetSQLName("SED")
+   cQryMTADM += " WHERE SUBSTRING(ED_CODIGO,1,6) IN "+FormatIn(cNtGMtOrCml,",")
+   cQryMTADM += " AND D_E_L_E_T_ <> '*'"
+   
+   TCQuery cQryMTADM New Alias "MTADM"
+   
+   DbSelectArea("MTADM")
+   While !Eof()
+      DbSelectArea("OXR")
+      If DbSeek(SUBSTR(MTADM->ED_CODIGO,1,6))
+         RecLock("OXR",.F.)
+            OXR->MTORCADM := "S"
+         MsUnLock()
+      EndIf
+      DbSelectArea("MTADM")
+      DbSkip()
+   EndDo
+   DbSelectArea("MTADM")
+   DbCloseArea()
+
+   
+   
+   For nVez := 1 To 2
+   
+      nLin         := 80
+     
+      If nVez == 1
+         Cabec1       := "                                                                                                        G A S T O S   G E R A I S   D O   C O M E R C I O                                                                   "
+      Else
+         Cabec1       := "                                                                                                   M E T A S   DE   O R Ç A M E N T O   D O   C O M E R C I O                                                               "
+      EndIf
+      
+      DbSelectArea("OXR")
+      DbGoTop()
+      While !EOF()
+
+      
+         If nVez == 2 .And. OXR->MTORCADM <> "S" //Na impressão do segundo bloco de naturezas, só apresenta natures
+            DbSelectArea("OXR")                  //que compõem Metas de Orçamentos.
+            DbSkip()
+            Loop
+         EndIf
+      
+         //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         //³ Verifica o cancelamento pelo usuario...                             ³
+         //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+         
+         If lAbortPrint
+            @nLin,00 PSAY "*** CANCELADO PELO OPERADOR ***"
+            Exit
+         Endif
+
+         //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         //³ Impressao do cabecalho do relatorio. . .                            ³
+         //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+         If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+    
+         //          10        20        30        40        50        60        70        80        90       100       110       120      130       140        150       160       170       180       190       200      210        220
+         // 01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+         //"                                                                                                        G A S T O S   G E R A I S   D O   C O M E R C I O                                                                   "
+         //"                                                                                                   M E T A S   DE   O R Ç A M E N T O   D O   C O M E R C I O                                                               "
+         //"Natureza   Descrição                                       Janeiro     Fevereiro         Março         Abril          Maio         Junho         Julho        Agosto      Setembro       Outubro      Novembro      Dezembro"
+         // xxxxxxxxxX xxxxxxxxxXxxxxxxxxxXxxxxxxxxxX      Orçado 9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99
+         //                                             Realizado
+         //                                            A Realizar
+         //                                                  Real
+         //                                            % Variação
+
+         @nLin,000 PSAY Substr(OXR->NATUREZ,1,6)
+         @nLin,011 PSAY Substr(Posicione("SED",1,xFilial("SED")+Substr(OXR->NATUREZ,1,6),"ED_DESCRIC"),1,30) 
+         @nLin,047 PSAY "Orçado"
+         @nLin,054 PSAY OXR->MES1  Picture "@E 9,999,999.99"
+         @nLin,068 PSAY OXR->MES2  Picture "@E 9,999,999.99"
+         @nLin,082 PSAY OXR->MES3  Picture "@E 9,999,999.99"
+         @nLin,096 PSAY OXR->MES4  Picture "@E 9,999,999.99"
+         @nLin,110 PSAY OXR->MES5  Picture "@E 9,999,999.99"
+         @nLin,124 PSAY OXR->MES6  Picture "@E 9,999,999.99"
+         @nLin,138 PSAY OXR->MES7  Picture "@E 9,999,999.99"
+         @nLin,152 PSAY OXR->MES8  Picture "@E 9,999,999.99"
+         @nLin,166 PSAY OXR->MES9  Picture "@E 9,999,999.99"
+         @nLin,180 PSAY OXR->MES10 Picture "@E 9,999,999.99"
+         @nLin,194 PSAY OXR->MES11 Picture "@E 9,999,999.99"
+         @nLin,208 PSAY OXR->MES12 Picture "@E 9,999,999.99"
+   
+         nLin := nLin + 1 // Avanca a linha de impressao
+         If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+   
+         @nLin,044 PSAY "Realizado"
+         @nLin,054 PSAY OXR->REA1  Picture "@E 9,999,999.99"
+         @nLin,068 PSAY OXR->REA2  Picture "@E 9,999,999.99"
+         @nLin,082 PSAY OXR->REA3  Picture "@E 9,999,999.99"
+         @nLin,096 PSAY OXR->REA4  Picture "@E 9,999,999.99"
+         @nLin,110 PSAY OXR->REA5  Picture "@E 9,999,999.99"
+         @nLin,124 PSAY OXR->REA6  Picture "@E 9,999,999.99"
+         @nLin,138 PSAY OXR->REA7  Picture "@E 9,999,999.99"
+         @nLin,152 PSAY OXR->REA8  Picture "@E 9,999,999.99"
+         @nLin,166 PSAY OXR->REA9  Picture "@E 9,999,999.99"
+         @nLin,180 PSAY OXR->REA10 Picture "@E 9,999,999.99"
+         @nLin,194 PSAY OXR->REA11 Picture "@E 9,999,999.99"
+         @nLin,208 PSAY OXR->REA12 Picture "@E 9,999,999.99"
+
+
+         nLin := nLin + 1 // Avanca a linha de impressao
+         If  nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+   
+         @nLin,043 PSAY "% Variação"
+         @nLin,054 PSAY IIf(OXR->MES1  > 0, ((OXR->REA1 /OXR->MES1) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,068 PSAY IIf(OXR->MES2  > 0, ((OXR->REA2 /OXR->MES2) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,082 PSAY IIf(OXR->MES3  > 0, ((OXR->REA3 /OXR->MES3) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,096 PSAY IIf(OXR->MES4  > 0, ((OXR->REA4 /OXR->MES4) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,110 PSAY IIf(OXR->MES5  > 0, ((OXR->REA5 /OXR->MES5) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,124 PSAY IIf(OXR->MES6  > 0, ((OXR->REA6 /OXR->MES6) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,138 PSAY IIf(OXR->MES7  > 0, ((OXR->REA7 /OXR->MES7) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,152 PSAY IIf(OXR->MES8  > 0, ((OXR->REA8 /OXR->MES8) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,166 PSAY IIf(OXR->MES9  > 0, ((OXR->REA9 /OXR->MES9) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,180 PSAY IIf(OXR->MES10 > 0, ((OXR->REA10/OXR->MES10)* 100),0) Picture "@E 9,999,999.99"
+         @nLin,194 PSAY IIf(OXR->MES11 > 0, ((OXR->REA11/OXR->MES11)* 100),0) Picture "@E 9,999,999.99"
+         @nLin,208 PSAY IIf(OXR->MES12 > 0, ((OXR->REA12/OXR->MES12)* 100),0) Picture "@E 9,999,999.99"
+
+         //Acumula Totalizadores dos Orçados de Gastos Gerais/Metas
+         nOrc1GADM += OXR->MES1
+         nOrc2GADM += OXR->MES2
+         nOrc3GADM += OXR->MES3
+         nOrc4GADM += OXR->MES4
+         nOrc5GADM += OXR->MES5
+         nOrc6GADM += OXR->MES6
+         nOrc7GADM += OXR->MES7
+         nOrc8GADM += OXR->MES8
+         nOrc9GADM += OXR->MES9
+         nOrc10GADM += OXR->MES10
+         nOrc11GADM += OXR->MES11
+         nOrc12GADM += OXR->MES12
+   
+   
+         //Acumula Totalizadores dos Realizados de Gastos Gerais/Metas
+         nRea1GADM  += OXR->REA1
+         nRea2GADM  += OXR->REA2
+         nRea3GADM  += OXR->REA3
+         nRea4GADM  += OXR->REA4
+         nRea5GADM  += OXR->REA5
+         nRea6GADM  += OXR->REA6
+         nRea7GADM  += OXR->REA7
+         nRea8GADM  += OXR->REA8
+         nRea9GADM  += OXR->REA9
+         nRea10GADM += OXR->REA10
+         nRea11GADM += OXR->REA11
+         nRea12GADM += OXR->REA12
+
+         If nVez == 1
+            //Acumula Totalizadores Global dos Orçados de Gastos Gerais/Metas
+            nGlbOr1GG += OXR->MES1
+            nGlbOr2GG += OXR->MES2
+            nGlbOr3GG += OXR->MES3
+            nGlbOr4GG += OXR->MES4
+            nGlbOr5GG += OXR->MES5
+            nGlbOr6GG += OXR->MES6
+            nGlbOr7GG += OXR->MES7
+            nGlbOr8GG += OXR->MES8
+            nGlbOr9GG += OXR->MES9
+            nGlbOr10GG += OXR->MES10
+            nGlbOr11GG += OXR->MES11
+            nGlbOr12GG += OXR->MES12
+
+           //Acumula Totalizadores Global dos Realizados de Gastos Gerais/Metas
+           nGbRea1GG += OXR->REA1
+           nGbRea2GG += OXR->REA2
+           nGbRea3GG += OXR->REA3
+           nGbRea4GG += OXR->REA4
+           nGbRea5GG += OXR->REA5
+           nGbRea6GG += OXR->REA6
+           nGbRea7GG += OXR->REA7
+           nGbRea8GG += OXR->REA8
+           nGbRea9GG += OXR->REA9
+           nGbRea10GG += OXR->REA10
+           nGbRea11GG += OXR->REA11
+           nGbRea12GG += OXR->REA12
+         EndIf
+
+
+         nLin := nLin + 2 // Avanca a linha de impressao
+
+         DbSkip() // Avanca o ponteiro do registro no arquivo
+   
+      EndDo
+
+      //  *************************************************
+      //  * Imprime Totalizadores do Gastos Gerias Adm/Fin (Orçado / Realizado)
+      //  **************************************************
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais Orçado de Gastos Gerais Comércio ... "
+      Else
+        @nLin,000 PSAY "Tot.Metas Orçado de Gastos Gerais Comércio ... "
+      EndIf
+      @nLin,054 PSAY nOrc1GADM  Picture "@E 9,999,999.99"
+      @nLin,068 PSAY nOrc2GADM  Picture "@E 9,999,999.99"
+      @nLin,082 PSAY nOrc3GADM  Picture "@E 9,999,999.99"
+      @nLin,096 PSAY nOrc4GADM  Picture "@E 9,999,999.99"
+      @nLin,110 PSAY nOrc5GADM  Picture "@E 9,999,999.99"
+      @nLin,124 PSAY nOrc6GADM  Picture "@E 9,999,999.99"
+      @nLin,138 PSAY nOrc7GADM  Picture "@E 9,999,999.99"
+      @nLin,152 PSAY nOrc8GADM  Picture "@E 9,999,999.99"
+      @nLin,166 PSAY nOrc9GADM  Picture "@E 9,999,999.99"
+      @nLin,180 PSAY nOrc10GADM Picture "@E 9,999,999.99"
+      @nLin,194 PSAY nOrc11GADM Picture "@E 9,999,999.99"
+      @nLin,208 PSAY nOrc12GADM Picture "@E 9,999,999.99"
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais Realizado de Gastos Gerais Comércio ... "
+      Else
+         @nLin,000 PSAY "Tot.Metas Realizado de Gastos Gerais Comércio ... "
+      EndIf
+   
+      @nLin,054 PSAY nRea1GADM  Picture "@E 9,999,999.99"
+      @nLin,068 PSAY nRea2GADM  Picture "@E 9,999,999.99"
+      @nLin,082 PSAY nRea3GADM  Picture "@E 9,999,999.99"
+      @nLin,096 PSAY nRea4GADM  Picture "@E 9,999,999.99"
+      @nLin,110 PSAY nRea5GADM  Picture "@E 9,999,999.99"
+      @nLin,124 PSAY nRea6GADM  Picture "@E 9,999,999.99"
+      @nLin,138 PSAY nRea7GADM  Picture "@E 9,999,999.99"
+      @nLin,152 PSAY nRea8GADM  Picture "@E 9,999,999.99"
+      @nLin,166 PSAY nRea9GADM  Picture "@E 9,999,999.99"
+      @nLin,180 PSAY nRea10GADM Picture "@E 9,999,999.99"
+      @nLin,194 PSAY nRea11GADM Picture "@E 9,999,999.99"
+      @nLin,208 PSAY nRea12GADM Picture "@E 9,999,999.99"
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais % Variação de Gastos Gerais Comércio ..."
+      Else
+         @nLin,000 PSAY "Tot.Metas % Variação de Gastos Gerais Comércio ..."
+      EndIf
+   
+      @nLin,054 PSAY IIf(nOrc1GADM  > 0, ((nRea1GADM /nOrc1GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,068 PSAY IIf(nOrc2GADM  > 0, ((nRea2GADM /nOrc2GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,082 PSAY IIf(nOrc3GADM  > 0, ((nRea3GADM /nOrc3GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,096 PSAY IIf(nOrc4GADM  > 0, ((nRea4GADM /nOrc4GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,110 PSAY IIf(nOrc5GADM  > 0, ((nRea5GADM /nOrc5GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,124 PSAY IIf(nOrc6GADM  > 0, ((nRea6GADM /nOrc6GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,138 PSAY IIf(nOrc7GADM  > 0, ((nRea7GADM /nOrc7GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,152 PSAY IIf(nOrc8GADM  > 0, ((nRea8GADM /nOrc8GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,166 PSAY IIf(nOrc9GADM  > 0, ((nRea9GADM /nOrc9GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,180 PSAY IIf(nOrc10GADM  > 0, ((nRea10GADM /nOrc10GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,194 PSAY IIf(nOrc11GADM  > 0, ((nRea11GADM /nOrc11GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,208 PSAY IIf(nOrc12GADM  > 0, ((nRea12GADM /nOrc12GADM) *100),0) Picture "@E 9,999,999.99"
+   
+      nLin := 56 //Força mudança de página
+      
+      //Zera Acumuladores para apresentar valores das naturezas apenas que compõem metas de orçamentos
+
+      //Orçado Gastos Gerais Adm
+      nOrc1GADM := 0
+      nOrc2GADM := 0
+      nOrc3GADM := 0
+      nOrc4GADM := 0
+      nOrc5GADM := 0
+      nOrc6GADM := 0
+      nOrc7GADM := 0
+      nOrc8GADM := 0
+      nOrc9GADM := 0
+      nOrc10GADM := 0
+      nOrc11GADM := 0
+      nOrc12GADM := 0
+
+      //Realizado Gastos Gerais Adm
+      nRea1GADM := 0
+      nRea2GADM := 0
+      nRea3GADM := 0
+      nRea4GADM := 0
+      nRea5GADM := 0
+      nRea6GADM := 0
+      nRea7GADM := 0
+      nRea8GADM := 0
+      nRea9GADM := 0
+      nRea10GADM := 0
+      nRea11GADM := 0
+      nRea12GADM := 0
+
+   Next nVez
+   
+   
+   Return   
+   
+      Static Function RunExter
+   
+   //Criação do Arquivo Temporário
+   If SELECT("OXR") > 0
+      DbSelectArea("OXR")
+      DbCloseArea()
+   EndIf
+
+   cArqInd := "ORCXREA.CDX"
+   While File(cArqInd)
+      DELETE FILE &cArqInd
+   EndDo
+
+   aCampos := {}
+   //Campos para guardar Metas Orçadas para cada natureza
+   Aadd(aCampos, {"NATUREZ","C",6,0})
+   Aadd(aCampos, {"DESC","C",30,0})
+   Aadd(aCampos, {"MES1","N",14,02})
+   Aadd(aCampos, {"MES2","N",14,02})
+   Aadd(aCampos, {"MES3","N",14,02})
+   Aadd(aCampos, {"MES4","N",14,02})
+   Aadd(aCampos, {"MES5","N",14,02})
+   Aadd(aCampos, {"MES6","N",14,02})
+   Aadd(aCampos, {"MES7","N",14,02})
+   Aadd(aCampos, {"MES8","N",14,02})
+   Aadd(aCampos, {"MES9","N",14,02})
+   Aadd(aCampos, {"MES10","N",14,02})
+   Aadd(aCampos, {"MES11","N",14,02})
+   Aadd(aCampos, {"MES12","N",14,02})
+   //Campos para guardar os Gastos Realizados para cada natureza
+   Aadd(aCampos, {"REA1","N",14,02})
+   Aadd(aCampos, {"REA2","N",14,02})
+   Aadd(aCampos, {"REA3","N",14,02})
+   Aadd(aCampos, {"REA4","N",14,02})
+   Aadd(aCampos, {"REA5","N",14,02})
+   Aadd(aCampos, {"REA6","N",14,02})
+   Aadd(aCampos, {"REA7","N",14,02})
+   Aadd(aCampos, {"REA8","N",14,02})
+   Aadd(aCampos, {"REA9","N",14,02})
+   Aadd(aCampos, {"REA10","N",14,02})
+   Aadd(aCampos, {"REA11","N",14,02})
+   Aadd(aCampos, {"REA12","N",14,02})
+   //Campo para identificar que a natureza do Adm tem Meta de Orçamento
+   Aadd(aCampos, {"MTORCADM","C",01,00})
+
+
+   DbCreate("ORCXREA.DBF",aCampos)
+
+   DbUseArea(.T.,"DBFCDX","ORCXREA.DBF","OXR")
+
+   INDEX ON OXR->NATUREZ TO ORCXREA
+
+   /************************
+   *
+   * GASTOS GERAIS COMERCIO EXTERIOR (ORÇADO)
+   *
+   ************************/
+   
+      cQuery := " SELECT SED.ED_CODIGO,SE7.E7_ANO,SE7.E7_VALJAN1,SE7.E7_VALFEV1,SE7.E7_VALMAR1,SE7.E7_VALABR1," 
+      cQuery += " SE7.E7_VALMAI1,SE7.E7_VALJUN1,SE7.E7_VALJUL1,SE7.E7_VALAGO1,SE7.E7_VALSET1,SE7.E7_VALOUT1,"
+      cQuery += " SE7.E7_VALNOV1,SE7.E7_VALDEZ1"
+      cQuery += " FROM "+RetSQLName("SED")+" SED LEFT OUTER JOIN "+RetSqlName("SE7")+" SE7 "
+      cQuery += "                                ON SED.ED_CODIGO = SE7.E7_NATUREZ"
+      cQuery += "                               AND SE7.E7_ANO = '" +Substr(DTOS(dDataRel),1,4)+ "'"
+      cQuery += "                               AND SE7.E7_FILIAL = '"+xFilial("SE7")+"'"
+      cQuery += "                               AND SE7.D_E_L_E_T_ = ' '"
+      cQuery += " WHERE SED.D_E_L_E_T_ = ' '"
+      cQuery += "   AND SUBSTRING(SED.ED_CODIGO,1,6) IN "+FormatIn(cGGCENat,",")      
+      
+      MemoWrite("C:\TEMP\ROrcXRea_OrçaGerADM.SQL",cQuery)
+      
+      TCQuery cQuery NEW ALIAS "ORGAD"
+      
+      TcSetField("ORGAD","E7_VALJAN1","N",14,02)
+      TcSetField("ORGAD","E7_VALFEV1","N",14,02)
+      TcSetField("ORGAD","E7_VALMAR1","N",14,02)
+      TcSetField("ORGAD","E7_VALABR1","N",14,02)
+      TcSetField("ORGAD","E7_VALMAI1","N",14,02)
+      TcSetField("ORGAD","E7_VALJUN1","N",14,02)
+      TcSetField("ORGAD","E7_VALJUL1","N",14,02)
+      TcSetField("ORGAD","E7_VALAGO1","N",14,02)
+      TcSetField("ORGAD","E7_VALSET1","N",14,02)
+      TcSetField("ORGAD","E7_VALOUT1","N",14,02)
+      TcSetField("ORGAD","E7_VALNOV1","N",14,02)
+      TcSetField("ORGAD","E7_VALDEZ1","N",14,02)
+      
+      DbSelectArea("ORGAD")
+      While !Eof()
+         
+         DbSelectArea("OXR")
+         If DbSeek(ORGAD->ED_CODIGO)
+            RecLock("OXR",.F.)
+               OXR->MES1 += ORGAD->E7_VALJAN1
+               OXR->MES2 += ORGAD->E7_VALFEV1               
+               OXR->MES3 += ORGAD->E7_VALMAR1
+               OXR->MES4 += ORGAD->E7_VALABR1
+               OXR->MES5 += ORGAD->E7_VALMAI1
+               OXR->MES6 += ORGAD->E7_VALJUN1
+               OXR->MES7 += ORGAD->E7_VALJUL1
+               OXR->MES8 += ORGAD->E7_VALAGO1
+               OXR->MES9 += ORGAD->E7_VALSET1
+               OXR->MES10 += ORGAD->E7_VALOUT1
+               OXR->MES11 += ORGAD->E7_VALNOV1
+               OXR->MES12 += ORGAD->E7_VALDEZ1
+              MsUnLock()
+         Else
+            RecLock("OXR",.T.)
+               OXR->NATUREZ := ORGAD->ED_CODIGO
+               OXR->MES1 := ORGAD->E7_VALJAN1
+               OXR->MES2 := ORGAD->E7_VALFEV1               
+               OXR->MES3 := ORGAD->E7_VALMAR1
+               OXR->MES4 := ORGAD->E7_VALABR1
+               OXR->MES5 := ORGAD->E7_VALMAI1
+               OXR->MES6 := ORGAD->E7_VALJUN1
+               OXR->MES7 := ORGAD->E7_VALJUL1
+               OXR->MES8 := ORGAD->E7_VALAGO1
+               OXR->MES9 := ORGAD->E7_VALSET1
+               OXR->MES10 := ORGAD->E7_VALOUT1
+               OXR->MES11 := ORGAD->E7_VALNOV1
+               OXR->MES12 := ORGAD->E7_VALDEZ1
+              MsUnLock()
+         EndIf
+         
+         DbSelectArea("ORGAD")
+         DbSkip()
+         
+      EndDo
+      DbSelectArea("ORGAD")
+      DbCloseArea()
+
+
+   /************************
+   *
+   * GASTOS GERAIS COMERCIO EXTERIOR (REALIZADO)
+   *
+   ************************/
+   
+      cQuery := " SELECT SUBSTRING(SE5.E5_DATA,1,6) AS MESGST,SUBSTRING(SE5.E5_NATUREZ,1,6) AS NATUREZ,SUM(SE5.E5_VALOR) AS VLGGADM "
+      cQuery += " FROM " + RetSqlName("SE5")+" SE5 "
+      cQuery += " WHERE SE5.E5_RECPAG = 'P'"
+      
+      cQuery += "    AND  SUBSTRING(SE5.E5_DATA,1,4) = '" +Substr(DTOS(dDataRel),1,4)+ "'"
+      
+      cQuery += "  AND SUBSTRING(SE5.E5_NATUREZ,1,6) IN "+FormatIn(cGGCENat,",")
+
+      cQuery += "  AND SE5.D_E_L_E_T_ = ' '"
+      cQuery += "  AND SE5.E5_TIPODOC IN ('VL','BA')"
+      cQuery += "  AND SE5.E5_SITUACA = ' '"
+      cQuery += "  AND SUBSTRING(SE5.E5_NUMERO,1,6)  <> '      '"
+      cQuery += "  AND SE5.E5_FILIAL = '" + xFilial("SE5") + "'"
+      cQuery += "  AND (SELECT COUNT(*)"
+      cQuery += "         FROM "+RetSQLName("SE5")+" TMP"
+      cQuery += "       WHERE TMP.E5_FILIAL = '"+xFilial("SE5")+"'"
+      cQuery += "         AND TMP.E5_FILIAL = SE5.E5_FILIAL"
+      cQuery += "         AND TMP.E5_PREFIXO = SE5.E5_PREFIXO"
+      cQuery += "         AND TMP.E5_NUMERO = SE5.E5_NUMERO"
+      cQuery += "         AND TMP.E5_PARCELA = SE5.E5_PARCELA"
+      cQuery += "         AND TMP.E5_TIPO = SE5.E5_TIPO"
+      cQuery += "         AND TMP.E5_CLIFOR = SE5.E5_CLIFOR"
+      cQuery += "         AND TMP.E5_LOJA = SE5.E5_LOJA"
+      cQuery += "         AND TMP.E5_VALOR = SE5.E5_VALOR"   
+      cQuery += "         AND TMP.E5_SEQ = SE5.E5_SEQ"
+      cQuery += "         AND TMP.E5_TIPODOC = 'ES'"
+      cQuery += "         AND TMP.D_E_L_E_T_ <> '*') = 0"
+      cQuery += " GROUP BY SUBSTRING(SE5.E5_DATA,1,6),SUBSTRING(SE5.E5_NATUREZ,1,6)"
+      cQuery += " ORDER BY SUBSTRING(SE5.E5_NATUREZ,1,6)"
+      
+      MemoWrite("C:\TEMP\ROrcXRea_GastGerADM.SQL",cQuery)
+      
+      TCQuery cQuery NEW ALIAS "GADM"
+      
+      TcSetField("GADM","VLGGADM","N",14,02)
+      
+      DbSelectArea("GADM")
+      While !Eof()
+         
+         DbSelectArea("OXR")
+         If DbSeek(GADM->NATUREZ)
+            RecLock("OXR",.F.)
+               If Substr(GADM->MESGST,5,2) == "01"
+                  OXR->REA1 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "02"
+                  OXR->REA2 += GADM->VLGGADM               
+               ElseIf Substr(GADM->MESGST,5,2) == "03"
+                  OXR->REA3 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "04"
+                  OXR->REA4 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "05"
+                  OXR->REA5 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "06"
+                  OXR->REA6 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "07"
+                  OXR->REA7 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "08"
+                  OXR->REA8 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "09"
+                  OXR->REA9 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "10"
+                  OXR->REA10 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "11"
+                  OXR->REA11 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "12"
+                  OXR->REA12 += GADM->VLGGADM
+               EndIf
+            MsUnLock()
+         Else
+            RecLock("OXR",.T.)
+               OXR->NATUREZ := GADM->NATUREZ
+               If Substr(GADM->MESGST,5,2) == "01"
+                  OXR->REA1 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "02"
+                  OXR->REA2 := GADM->VLGGADM               
+               ElseIf Substr(GADM->MESGST,5,2) == "03"
+                  OXR->REA3 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "04"
+                  OXR->REA4 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "05"
+                  OXR->REA5 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "06"
+                  OXR->REA6 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "07"
+                  OXR->REA7 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "08"
+                  OXR->REA8 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "09"
+                  OXR->REA9 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "10"
+                  OXR->REA10 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "11"
+                  OXR->REA11 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "12"
+                  OXR->REA12 := GADM->VLGGADM
+               EndIf
+            MsUnLock()
+         EndIf
+         
+         DbSelectArea("GADM")
+         DbSkip()
+         
+      EndDo
+      DbSelectArea("GADM")
+      DbCloseArea()
+      
+   
+   //Selecionando e Marcando Naturezas que contém Metas de Orçamentos
+   cQryMTADM := "SELECT ED_CODIGO "
+   cQryMTADM += " FROM "+RetSQLName("SED")
+   cQryMTADM += " WHERE SUBSTRING(ED_CODIGO,1,6) IN "+FormatIn(cMtCENat,",")
+   cQryMTADM += " AND D_E_L_E_T_ <> '*'"
+   
+   TCQuery cQryMTADM New Alias "MTADM"
+   
+   DbSelectArea("MTADM")
+   While !Eof()
+      DbSelectArea("OXR")
+      If DbSeek(SUBSTR(MTADM->ED_CODIGO,1,6))
+         RecLock("OXR",.F.)
+            OXR->MTORCADM := "S"
+         MsUnLock()
+      EndIf
+      DbSelectArea("MTADM")
+      DbSkip()
+   EndDo
+   DbSelectArea("MTADM")
+   DbCloseArea()
+
+   
+   For nVez := 1 To 2
+      
+      nLin         := 80
+     
+      If nVez == 1
+         Cabec1       := "                                                                                                    G A S T O S   G E R A I S   D O   C O M E R C I O   E X T E R I O R                                                     "
+      Else
+         Cabec1       := "                                                                                                M E T A S   DE   O R Ç A M E N T O   D O   C O M E R C I O  E X T E R I O R                                                 "
+      EndIf
+      
+      DbSelectArea("OXR")
+      DbGoTop()
+      While !EOF()
+
+      
+         If nVez == 2 .And. OXR->MTORCADM <> "S" //Na impressão do segundo bloco de naturezas, só apresenta natures
+            DbSelectArea("OXR")                  //que compõem Metas de Orçamentos.
+            DbSkip()
+            Loop
+         EndIf
+      
+         //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         //³ Verifica o cancelamento pelo usuario...                             ³
+         //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+         
+         If lAbortPrint
+            @nLin,00 PSAY "*** CANCELADO PELO OPERADOR ***"
+            Exit
+         Endif
+
+         //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         //³ Impressao do cabecalho do relatorio. . .                            ³
+         //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+         If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+    
+         //          10        20        30        40        50        60        70        80        90       100       110       120      130       140        150       160       170       180       190       200      210        220
+         // 01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+         //"                                                                                                    G A S T O S   G E R A I S   D O   C O M E R C I O   E X T E R I O R                                                     "
+         //"                                                                                                M E T A S   DE   O R Ç A M E N T O   D O   C O M E R C I O  E X T E R I O R                                                 "
+         //"Natureza   Descrição                                       Janeiro     Fevereiro         Março         Abril          Maio         Junho         Julho        Agosto      Setembro       Outubro      Novembro      Dezembro"
+         // xxxxxxxxxX xxxxxxxxxXxxxxxxxxxXxxxxxxxxxX      Orçado 9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99
+         //                                             Realizado
+         //                                            A Realizar
+         //                                                  Real
+         //                                            % Variação
+
+         @nLin,000 PSAY Substr(OXR->NATUREZ,1,6)
+         @nLin,011 PSAY Substr(Posicione("SED",1,xFilial("SED")+Substr(OXR->NATUREZ,1,6),"ED_DESCRIC"),1,30) 
+         @nLin,047 PSAY "Orçado"
+         @nLin,054 PSAY OXR->MES1  Picture "@E 9,999,999.99"
+         @nLin,068 PSAY OXR->MES2  Picture "@E 9,999,999.99"
+         @nLin,082 PSAY OXR->MES3  Picture "@E 9,999,999.99"
+         @nLin,096 PSAY OXR->MES4  Picture "@E 9,999,999.99"
+         @nLin,110 PSAY OXR->MES5  Picture "@E 9,999,999.99"
+         @nLin,124 PSAY OXR->MES6  Picture "@E 9,999,999.99"
+         @nLin,138 PSAY OXR->MES7  Picture "@E 9,999,999.99"
+         @nLin,152 PSAY OXR->MES8  Picture "@E 9,999,999.99"
+         @nLin,166 PSAY OXR->MES9  Picture "@E 9,999,999.99"
+         @nLin,180 PSAY OXR->MES10 Picture "@E 9,999,999.99"
+         @nLin,194 PSAY OXR->MES11 Picture "@E 9,999,999.99"
+         @nLin,208 PSAY OXR->MES12 Picture "@E 9,999,999.99"
+   
+         nLin := nLin + 1 // Avanca a linha de impressao
+         If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+   
+         @nLin,044 PSAY "Realizado"
+         @nLin,054 PSAY OXR->REA1  Picture "@E 9,999,999.99"
+         @nLin,068 PSAY OXR->REA2  Picture "@E 9,999,999.99"
+         @nLin,082 PSAY OXR->REA3  Picture "@E 9,999,999.99"
+         @nLin,096 PSAY OXR->REA4  Picture "@E 9,999,999.99"
+         @nLin,110 PSAY OXR->REA5  Picture "@E 9,999,999.99"
+         @nLin,124 PSAY OXR->REA6  Picture "@E 9,999,999.99"
+         @nLin,138 PSAY OXR->REA7  Picture "@E 9,999,999.99"
+         @nLin,152 PSAY OXR->REA8  Picture "@E 9,999,999.99"
+         @nLin,166 PSAY OXR->REA9  Picture "@E 9,999,999.99"
+         @nLin,180 PSAY OXR->REA10 Picture "@E 9,999,999.99"
+         @nLin,194 PSAY OXR->REA11 Picture "@E 9,999,999.99"
+         @nLin,208 PSAY OXR->REA12 Picture "@E 9,999,999.99"
+
+
+         nLin := nLin + 1 // Avanca a linha de impressao
+         If  nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+   
+         @nLin,043 PSAY "% Variação"
+         @nLin,054 PSAY IIf(OXR->MES1  > 0, ((OXR->REA1 /OXR->MES1) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,068 PSAY IIf(OXR->MES2  > 0, ((OXR->REA2 /OXR->MES2) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,082 PSAY IIf(OXR->MES3  > 0, ((OXR->REA3 /OXR->MES3) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,096 PSAY IIf(OXR->MES4  > 0, ((OXR->REA4 /OXR->MES4) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,110 PSAY IIf(OXR->MES5  > 0, ((OXR->REA5 /OXR->MES5) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,124 PSAY IIf(OXR->MES6  > 0, ((OXR->REA6 /OXR->MES6) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,138 PSAY IIf(OXR->MES7  > 0, ((OXR->REA7 /OXR->MES7) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,152 PSAY IIf(OXR->MES8  > 0, ((OXR->REA8 /OXR->MES8) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,166 PSAY IIf(OXR->MES9  > 0, ((OXR->REA9 /OXR->MES9) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,180 PSAY IIf(OXR->MES10 > 0, ((OXR->REA10/OXR->MES10)* 100),0) Picture "@E 9,999,999.99"
+         @nLin,194 PSAY IIf(OXR->MES11 > 0, ((OXR->REA11/OXR->MES11)* 100),0) Picture "@E 9,999,999.99"
+         @nLin,208 PSAY IIf(OXR->MES12 > 0, ((OXR->REA12/OXR->MES12)* 100),0) Picture "@E 9,999,999.99"
+
+         //Acumula Totalizadores dos Orçados de Gastos Gerais Adm
+         nOrc1GADM += OXR->MES1
+         nOrc2GADM += OXR->MES2
+         nOrc3GADM += OXR->MES3
+         nOrc4GADM += OXR->MES4
+         nOrc5GADM += OXR->MES5
+         nOrc6GADM += OXR->MES6
+         nOrc7GADM += OXR->MES7
+         nOrc8GADM += OXR->MES8
+         nOrc9GADM += OXR->MES9
+         nOrc10GADM += OXR->MES10
+         nOrc11GADM += OXR->MES11
+         nOrc12GADM += OXR->MES12
+   
+   
+         //Acumula Totalizadores dos Realizados de Gastos Gerais Adm
+         nRea1GADM  += OXR->REA1
+         nRea2GADM  += OXR->REA2
+         nRea3GADM  += OXR->REA3
+         nRea4GADM  += OXR->REA4
+         nRea5GADM  += OXR->REA5
+         nRea6GADM  += OXR->REA6
+         nRea7GADM  += OXR->REA7
+         nRea8GADM  += OXR->REA8
+         nRea9GADM  += OXR->REA9
+         nRea10GADM += OXR->REA10
+         nRea11GADM += OXR->REA11
+         nRea12GADM += OXR->REA12
+
+         If nVez == 1
+            //Acumula Totalizadores Global dos Orçados de Gastos Gerais/Metas
+            nGlbOr1GG += OXR->MES1
+            nGlbOr2GG += OXR->MES2
+            nGlbOr3GG += OXR->MES3
+            nGlbOr4GG += OXR->MES4
+            nGlbOr5GG += OXR->MES5
+            nGlbOr6GG += OXR->MES6
+            nGlbOr7GG += OXR->MES7
+            nGlbOr8GG += OXR->MES8
+            nGlbOr9GG += OXR->MES9
+            nGlbOr10GG += OXR->MES10
+            nGlbOr11GG += OXR->MES11
+            nGlbOr12GG += OXR->MES12
+
+           //Acumula Totalizadores Global dos Realizados de Gastos Gerais/Metas
+           nGbRea1GG += OXR->REA1
+           nGbRea2GG += OXR->REA2
+           nGbRea3GG += OXR->REA3
+           nGbRea4GG += OXR->REA4
+           nGbRea5GG += OXR->REA5
+           nGbRea6GG += OXR->REA6
+           nGbRea7GG += OXR->REA7
+           nGbRea8GG += OXR->REA8
+           nGbRea9GG += OXR->REA9
+           nGbRea10GG += OXR->REA10
+           nGbRea11GG += OXR->REA11
+           nGbRea12GG += OXR->REA12
+         EndIf
+
+         nLin := nLin + 2 // Avanca a linha de impressao
+
+         DbSkip() // Avanca o ponteiro do registro no arquivo
+   
+      EndDo
+
+      // *************************************************
+      // * Imprime Totalizadores do Gastos Gerias Adm/Fin (Orçado / Realizado)
+      // **************************************************
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais Orçado de Gastos Gerais Com.Exterior ... "
+      Else
+        @nLin,000 PSAY "Tot.Metas Orçado de Gastos Gerais Com.Exterior ... "
+      EndIf
+      @nLin,054 PSAY nOrc1GADM  Picture "@E 9,999,999.99"
+      @nLin,068 PSAY nOrc2GADM  Picture "@E 9,999,999.99"
+      @nLin,082 PSAY nOrc3GADM  Picture "@E 9,999,999.99"
+      @nLin,096 PSAY nOrc4GADM  Picture "@E 9,999,999.99"
+      @nLin,110 PSAY nOrc5GADM  Picture "@E 9,999,999.99"
+      @nLin,124 PSAY nOrc6GADM  Picture "@E 9,999,999.99"
+      @nLin,138 PSAY nOrc7GADM  Picture "@E 9,999,999.99"
+      @nLin,152 PSAY nOrc8GADM  Picture "@E 9,999,999.99"
+      @nLin,166 PSAY nOrc9GADM  Picture "@E 9,999,999.99"
+      @nLin,180 PSAY nOrc10GADM Picture "@E 9,999,999.99"
+      @nLin,194 PSAY nOrc11GADM Picture "@E 9,999,999.99"
+      @nLin,208 PSAY nOrc12GADM Picture "@E 9,999,999.99"
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais Realizado de Gastos Gerais Com.Exterior ... "
+      Else
+         @nLin,000 PSAY "Tot.Metas Realizado de Gastos Gerais Com.Exterior ... "
+      EndIf
+   
+      @nLin,054 PSAY nRea1GADM  Picture "@E 9,999,999.99"
+      @nLin,068 PSAY nRea2GADM  Picture "@E 9,999,999.99"
+      @nLin,082 PSAY nRea3GADM  Picture "@E 9,999,999.99"
+      @nLin,096 PSAY nRea4GADM  Picture "@E 9,999,999.99"
+      @nLin,110 PSAY nRea5GADM  Picture "@E 9,999,999.99"
+      @nLin,124 PSAY nRea6GADM  Picture "@E 9,999,999.99"
+      @nLin,138 PSAY nRea7GADM  Picture "@E 9,999,999.99"
+      @nLin,152 PSAY nRea8GADM  Picture "@E 9,999,999.99"
+      @nLin,166 PSAY nRea9GADM  Picture "@E 9,999,999.99"
+      @nLin,180 PSAY nRea10GADM Picture "@E 9,999,999.99"
+      @nLin,194 PSAY nRea11GADM Picture "@E 9,999,999.99"
+      @nLin,208 PSAY nRea12GADM Picture "@E 9,999,999.99"
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais % Variação de Gastos Gerais Com.Exterior ..."
+      Else
+         @nLin,000 PSAY "Tot.Metas % Variação de Gastos Gerais Com.Exterior ..."
+      EndIf
+   
+      @nLin,054 PSAY IIf(nOrc1GADM  > 0, ((nRea1GADM /nOrc1GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,068 PSAY IIf(nOrc2GADM  > 0, ((nRea2GADM /nOrc2GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,082 PSAY IIf(nOrc3GADM  > 0, ((nRea3GADM /nOrc3GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,096 PSAY IIf(nOrc4GADM  > 0, ((nRea4GADM /nOrc4GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,110 PSAY IIf(nOrc5GADM  > 0, ((nRea5GADM /nOrc5GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,124 PSAY IIf(nOrc6GADM  > 0, ((nRea6GADM /nOrc6GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,138 PSAY IIf(nOrc7GADM  > 0, ((nRea7GADM /nOrc7GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,152 PSAY IIf(nOrc8GADM  > 0, ((nRea8GADM /nOrc8GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,166 PSAY IIf(nOrc9GADM  > 0, ((nRea9GADM /nOrc9GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,180 PSAY IIf(nOrc10GADM  > 0, ((nRea10GADM /nOrc10GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,194 PSAY IIf(nOrc11GADM  > 0, ((nRea11GADM /nOrc11GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,208 PSAY IIf(nOrc12GADM  > 0, ((nRea12GADM /nOrc12GADM) *100),0) Picture "@E 9,999,999.99"
+   
+      nLin := 56 //Força mudança de página
+      
+      //Zera Acumuladores para apresentar valores das naturezas apenas que compõem metas de orçamentos
+
+      //Orçado Gastos Gerais Adm
+      nOrc1GADM := 0
+      nOrc2GADM := 0
+      nOrc3GADM := 0
+      nOrc4GADM := 0
+      nOrc5GADM := 0
+      nOrc6GADM := 0
+      nOrc7GADM := 0
+      nOrc8GADM := 0
+      nOrc9GADM := 0
+      nOrc10GADM := 0
+      nOrc11GADM := 0
+      nOrc12GADM := 0
+
+      //Realizado Gastos Gerais Adm
+      nRea1GADM := 0
+      nRea2GADM := 0
+      nRea3GADM := 0
+      nRea4GADM := 0
+      nRea5GADM := 0
+      nRea6GADM := 0
+      nRea7GADM := 0
+      nRea8GADM := 0
+      nRea9GADM := 0
+      nRea10GADM := 0
+      nRea11GADM := 0
+      nRea12GADM := 0
+
+   Next nVez
+
+   Return
+   
+   Static Function RunIndl
+
+   //Criação do Arquivo Temporário
+   If SELECT("OXR") > 0
+      DbSelectArea("OXR")
+      DbCloseArea()
+   EndIf
+
+   cArqInd := "ORCXREA.CDX"
+   While File(cArqInd)
+      DELETE FILE &cArqInd
+   EndDo
+
+   aCampos := {}
+   //Campos para guardar Metas Orçadas para cada natureza
+   Aadd(aCampos, {"NATUREZ","C",6,0})
+   Aadd(aCampos, {"DESC","C",30,0})
+   Aadd(aCampos, {"MES1","N",14,02})
+   Aadd(aCampos, {"MES2","N",14,02})
+   Aadd(aCampos, {"MES3","N",14,02})
+   Aadd(aCampos, {"MES4","N",14,02})
+   Aadd(aCampos, {"MES5","N",14,02})
+   Aadd(aCampos, {"MES6","N",14,02})
+   Aadd(aCampos, {"MES7","N",14,02})
+   Aadd(aCampos, {"MES8","N",14,02})
+   Aadd(aCampos, {"MES9","N",14,02})
+   Aadd(aCampos, {"MES10","N",14,02})
+   Aadd(aCampos, {"MES11","N",14,02})
+   Aadd(aCampos, {"MES12","N",14,02})
+   //Campos para guardar os Gastos Realizados para cada natureza
+   Aadd(aCampos, {"REA1","N",14,02})
+   Aadd(aCampos, {"REA2","N",14,02})
+   Aadd(aCampos, {"REA3","N",14,02})
+   Aadd(aCampos, {"REA4","N",14,02})
+   Aadd(aCampos, {"REA5","N",14,02})
+   Aadd(aCampos, {"REA6","N",14,02})
+   Aadd(aCampos, {"REA7","N",14,02})
+   Aadd(aCampos, {"REA8","N",14,02})
+   Aadd(aCampos, {"REA9","N",14,02})
+   Aadd(aCampos, {"REA10","N",14,02})
+   Aadd(aCampos, {"REA11","N",14,02})
+   Aadd(aCampos, {"REA12","N",14,02})
+   //Campo para identificar que a natureza do Adm tem Meta de Orçamento
+   Aadd(aCampos, {"MTORCADM","C",01,00})
+
+
+   DbCreate("ORCXREA.DBF",aCampos)
+
+   DbUseArea(.T.,"DBFCDX","ORCXREA.DBF","OXR")
+
+   INDEX ON OXR->NATUREZ TO ORCXREA
+
+   /************************
+   *
+   * GASTOS GERAIS INDUSTRIA (ORÇADO)
+   *
+   ************************/
+   
+      cQuery := " SELECT SED.ED_CODIGO,SE7.E7_ANO,SE7.E7_VALJAN1,SE7.E7_VALFEV1,SE7.E7_VALMAR1,SE7.E7_VALABR1," 
+      cQuery += " SE7.E7_VALMAI1,SE7.E7_VALJUN1,SE7.E7_VALJUL1,SE7.E7_VALAGO1,SE7.E7_VALSET1,SE7.E7_VALOUT1,"
+      cQuery += " SE7.E7_VALNOV1,SE7.E7_VALDEZ1"
+      cQuery += " FROM "+RetSQLName("SED")+" SED LEFT OUTER JOIN "+RetSqlName("SE7")+" SE7 "
+      cQuery += "                                ON SED.ED_CODIGO = SE7.E7_NATUREZ"
+      cQuery += "                               AND SE7.E7_ANO = '" +Substr(DTOS(dDataRel),1,4)+ "'"
+      cQuery += "                               AND SE7.E7_FILIAL = '"+xFilial("SE7")+"'"
+      cQuery += "                               AND SE7.D_E_L_E_T_ = ' '"
+      cQuery += " WHERE SED.D_E_L_E_T_ = ' '"
+      cQuery += "   AND SUBSTRING(SED.ED_CODIGO,1,6) IN "+FormatIn(cGASTGERIND,",")      
+      
+      MemoWrite("C:\TEMP\ROrcXRea_OrçaGerADM.SQL",cQuery)
+      
+      TCQuery cQuery NEW ALIAS "ORGAD"
+      
+      TcSetField("ORGAD","E7_VALJAN1","N",14,02)
+      TcSetField("ORGAD","E7_VALFEV1","N",14,02)
+      TcSetField("ORGAD","E7_VALMAR1","N",14,02)
+      TcSetField("ORGAD","E7_VALABR1","N",14,02)
+      TcSetField("ORGAD","E7_VALMAI1","N",14,02)
+      TcSetField("ORGAD","E7_VALJUN1","N",14,02)
+      TcSetField("ORGAD","E7_VALJUL1","N",14,02)
+      TcSetField("ORGAD","E7_VALAGO1","N",14,02)
+      TcSetField("ORGAD","E7_VALSET1","N",14,02)
+      TcSetField("ORGAD","E7_VALOUT1","N",14,02)
+      TcSetField("ORGAD","E7_VALNOV1","N",14,02)
+      TcSetField("ORGAD","E7_VALDEZ1","N",14,02)
+      
+      DbSelectArea("ORGAD")
+      While !Eof()
+         
+         DbSelectArea("OXR")
+         If DbSeek(ORGAD->ED_CODIGO)
+            RecLock("OXR",.F.)
+               OXR->MES1 += ORGAD->E7_VALJAN1
+               OXR->MES2 += ORGAD->E7_VALFEV1               
+               OXR->MES3 += ORGAD->E7_VALMAR1
+               OXR->MES4 += ORGAD->E7_VALABR1
+               OXR->MES5 += ORGAD->E7_VALMAI1
+               OXR->MES6 += ORGAD->E7_VALJUN1
+               OXR->MES7 += ORGAD->E7_VALJUL1
+               OXR->MES8 += ORGAD->E7_VALAGO1
+               OXR->MES9 += ORGAD->E7_VALSET1
+               OXR->MES10 += ORGAD->E7_VALOUT1
+               OXR->MES11 += ORGAD->E7_VALNOV1
+               OXR->MES12 += ORGAD->E7_VALDEZ1
+              MsUnLock()
+         Else
+            RecLock("OXR",.T.)
+               OXR->NATUREZ := ORGAD->ED_CODIGO
+               OXR->MES1 := ORGAD->E7_VALJAN1
+               OXR->MES2 := ORGAD->E7_VALFEV1               
+               OXR->MES3 := ORGAD->E7_VALMAR1
+               OXR->MES4 := ORGAD->E7_VALABR1
+               OXR->MES5 := ORGAD->E7_VALMAI1
+               OXR->MES6 := ORGAD->E7_VALJUN1
+               OXR->MES7 := ORGAD->E7_VALJUL1
+               OXR->MES8 := ORGAD->E7_VALAGO1
+               OXR->MES9 := ORGAD->E7_VALSET1
+               OXR->MES10 := ORGAD->E7_VALOUT1
+               OXR->MES11 := ORGAD->E7_VALNOV1
+               OXR->MES12 := ORGAD->E7_VALDEZ1
+              MsUnLock()
+         EndIf
+         
+         DbSelectArea("ORGAD")
+         DbSkip()
+         
+      EndDo
+      DbSelectArea("ORGAD")
+      DbCloseArea()
+
+
+   /************************
+   *
+   * GASTOS GERAIS INDUSTRIA (REALIZADO)
+   *
+   ************************/
+   
+      cQuery := " SELECT SUBSTRING(SE5.E5_DATA,1,6) AS MESGST,SUBSTRING(SE5.E5_NATUREZ,1,6) AS NATUREZ,SUM(SE5.E5_VALOR) AS VLGGADM "
+      cQuery += " FROM " + RetSqlName("SE5")+" SE5 "
+      cQuery += " WHERE SE5.E5_RECPAG = 'P'"
+      
+      cQuery += "    AND  SUBSTRING(SE5.E5_DATA,1,4) = '" +Substr(DTOS(dDataRel),1,4)+ "'"
+      
+      cQuery += "  AND SUBSTRING(SE5.E5_NATUREZ,1,6) IN "+FormatIn(cGASTGERIND,",")
+
+      cQuery += "  AND SE5.D_E_L_E_T_ = ' '"
+      cQuery += "  AND SE5.E5_TIPODOC IN ('VL','BA')"
+      cQuery += "  AND SE5.E5_SITUACA = ' '"
+      cQuery += "  AND SUBSTRING(SE5.E5_NUMERO,1,6)  <> '      '"
+      cQuery += "  AND SE5.E5_FILIAL = '" + xFilial("SE5") + "'"
+      cQuery += "  AND (SELECT COUNT(*)"
+      cQuery += "         FROM "+RetSQLName("SE5")+" TMP"
+      cQuery += "       WHERE TMP.E5_FILIAL = '"+xFilial("SE5")+"'"
+      cQuery += "         AND TMP.E5_FILIAL = SE5.E5_FILIAL"
+      cQuery += "         AND TMP.E5_PREFIXO = SE5.E5_PREFIXO"
+      cQuery += "         AND TMP.E5_NUMERO = SE5.E5_NUMERO"
+      cQuery += "         AND TMP.E5_PARCELA = SE5.E5_PARCELA"
+      cQuery += "         AND TMP.E5_TIPO = SE5.E5_TIPO"
+      cQuery += "         AND TMP.E5_CLIFOR = SE5.E5_CLIFOR"
+      cQuery += "         AND TMP.E5_LOJA = SE5.E5_LOJA"
+      cQuery += "         AND TMP.E5_VALOR = SE5.E5_VALOR"   
+      cQuery += "         AND TMP.E5_SEQ = SE5.E5_SEQ"
+      cQuery += "         AND TMP.E5_TIPODOC = 'ES'"
+      cQuery += "         AND TMP.D_E_L_E_T_ <> '*') = 0"
+      cQuery += " GROUP BY SUBSTRING(SE5.E5_DATA,1,6),SUBSTRING(SE5.E5_NATUREZ,1,6)"
+      cQuery += " ORDER BY SUBSTRING(SE5.E5_NATUREZ,1,6)"
+      
+      MemoWrite("C:\TEMP\ROrcXRea_GastGerADM.SQL",cQuery)
+      
+      TCQuery cQuery NEW ALIAS "GADM"
+      
+      TcSetField("GADM","VLGGADM","N",14,02)
+      
+      DbSelectArea("GADM")
+      While !Eof()
+         
+         DbSelectArea("OXR")
+         If DbSeek(GADM->NATUREZ)
+            RecLock("OXR",.F.)
+               If Substr(GADM->MESGST,5,2) == "01"
+                  OXR->REA1 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "02"
+                  OXR->REA2 += GADM->VLGGADM               
+               ElseIf Substr(GADM->MESGST,5,2) == "03"
+                  OXR->REA3 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "04"
+                  OXR->REA4 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "05"
+                  OXR->REA5 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "06"
+                  OXR->REA6 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "07"
+                  OXR->REA7 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "08"
+                  OXR->REA8 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "09"
+                  OXR->REA9 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "10"
+                  OXR->REA10 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "11"
+                  OXR->REA11 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "12"
+                  OXR->REA12 += GADM->VLGGADM
+               EndIf
+            MsUnLock()
+         Else
+            RecLock("OXR",.T.)
+               OXR->NATUREZ := GADM->NATUREZ
+               If Substr(GADM->MESGST,5,2) == "01"
+                  OXR->REA1 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "02"
+                  OXR->REA2 := GADM->VLGGADM               
+               ElseIf Substr(GADM->MESGST,5,2) == "03"
+                  OXR->REA3 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "04"
+                  OXR->REA4 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "05"
+                  OXR->REA5 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "06"
+                  OXR->REA6 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "07"
+                  OXR->REA7 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "08"
+                  OXR->REA8 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "09"
+                  OXR->REA9 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "10"
+                  OXR->REA10 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "11"
+                  OXR->REA11 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "12"
+                  OXR->REA12 := GADM->VLGGADM
+               EndIf
+            MsUnLock()
+         EndIf
+         
+         DbSelectArea("GADM")
+         DbSkip()
+         
+      EndDo
+      DbSelectArea("GADM")
+      DbCloseArea()
+      
+   
+   //Selecionando e Marcando Naturezas que contém Metas de Orçamentos
+   cQryMTADM := "SELECT ED_CODIGO "
+   cQryMTADM += " FROM "+RetSQLName("SED")
+   cQryMTADM += " WHERE SUBSTRING(ED_CODIGO,1,6) IN "+FormatIn(cNtGstMtOrInd,",")
+   cQryMTADM += " AND D_E_L_E_T_ <> '*'"
+   
+   TCQuery cQryMTADM New Alias "MTADM"
+   
+   DbSelectArea("MTADM")
+   While !Eof()
+      DbSelectArea("OXR")
+      If DbSeek(SUBSTR(MTADM->ED_CODIGO,1,6))
+         RecLock("OXR",.F.)
+            OXR->MTORCADM := "S"
+         MsUnLock()
+      EndIf
+      DbSelectArea("MTADM")
+      DbSkip()
+   EndDo
+   DbSelectArea("MTADM")
+   DbCloseArea()
+
+
+   For nVez := 1 To 2
+   
+      nLin         := 80
+     
+      If nVez == 1
+         Cabec1       := "                                                                                                        G A S T O S   G E R A I S   D A   I N D U S T R I A                                                                 "
+      Else
+         Cabec1       := "                                                                                                   M E T A S   DE   O R Ç A M E N T O   D A   I N D U S T R I A                                                             "
+      EndIf
+      
+      DbSelectArea("OXR")
+      DbGoTop()
+      While !EOF()
+
+      
+         If nVez == 2 .And. OXR->MTORCADM <> "S" //Na impressão do segundo bloco de naturezas, só apresenta natures
+            DbSelectArea("OXR")                  //que compõem Metas de Orçamentos.
+            DbSkip()
+            Loop
+         EndIf
+      
+         //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         //³ Verifica o cancelamento pelo usuario...                             ³
+         //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+         
+         If lAbortPrint
+            @nLin,00 PSAY "*** CANCELADO PELO OPERADOR ***"
+            Exit
+         Endif
+
+         //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         //³ Impressao do cabecalho do relatorio. . .                            ³
+         //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+         If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+    
+         //          10        20        30        40        50        60        70        80        90       100       110       120      130       140        150       160       170       180       190       200      210        220
+         // 01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+         //"                                                                                                        G A S T O S   G E R A I S   D A   I N D U S T R I A                                                                 "
+         //"                                                                                                   M E T A S   DE   O R Ç A M E N T O   D A   I N D U S T R I A                                                             "
+         //"Natureza   Descrição                                       Janeiro     Fevereiro         Março         Abril          Maio         Junho         Julho        Agosto      Setembro       Outubro      Novembro      Dezembro"
+         // xxxxxxxxxX xxxxxxxxxXxxxxxxxxxXxxxxxxxxxX      Orçado 9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99
+         //                                             Realizado
+         //                                            A Realizar
+         //                                                  Real
+         //                                            % Variação
+
+         @nLin,000 PSAY Substr(OXR->NATUREZ,1,6)
+         @nLin,011 PSAY Substr(Posicione("SED",1,xFilial("SED")+Substr(OXR->NATUREZ,1,6),"ED_DESCRIC"),1,30) 
+         @nLin,047 PSAY "Orçado"
+         @nLin,054 PSAY OXR->MES1  Picture "@E 9,999,999.99"
+         @nLin,068 PSAY OXR->MES2  Picture "@E 9,999,999.99"
+         @nLin,082 PSAY OXR->MES3  Picture "@E 9,999,999.99"
+         @nLin,096 PSAY OXR->MES4  Picture "@E 9,999,999.99"
+         @nLin,110 PSAY OXR->MES5  Picture "@E 9,999,999.99"
+         @nLin,124 PSAY OXR->MES6  Picture "@E 9,999,999.99"
+         @nLin,138 PSAY OXR->MES7  Picture "@E 9,999,999.99"
+         @nLin,152 PSAY OXR->MES8  Picture "@E 9,999,999.99"
+         @nLin,166 PSAY OXR->MES9  Picture "@E 9,999,999.99"
+         @nLin,180 PSAY OXR->MES10 Picture "@E 9,999,999.99"
+         @nLin,194 PSAY OXR->MES11 Picture "@E 9,999,999.99"
+         @nLin,208 PSAY OXR->MES12 Picture "@E 9,999,999.99"
+   
+         nLin := nLin + 1 // Avanca a linha de impressao
+         If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+   
+         @nLin,044 PSAY "Realizado"
+         @nLin,054 PSAY OXR->REA1  Picture "@E 9,999,999.99"
+         @nLin,068 PSAY OXR->REA2  Picture "@E 9,999,999.99"
+         @nLin,082 PSAY OXR->REA3  Picture "@E 9,999,999.99"
+         @nLin,096 PSAY OXR->REA4  Picture "@E 9,999,999.99"
+         @nLin,110 PSAY OXR->REA5  Picture "@E 9,999,999.99"
+         @nLin,124 PSAY OXR->REA6  Picture "@E 9,999,999.99"
+         @nLin,138 PSAY OXR->REA7  Picture "@E 9,999,999.99"
+         @nLin,152 PSAY OXR->REA8  Picture "@E 9,999,999.99"
+         @nLin,166 PSAY OXR->REA9  Picture "@E 9,999,999.99"
+         @nLin,180 PSAY OXR->REA10 Picture "@E 9,999,999.99"
+         @nLin,194 PSAY OXR->REA11 Picture "@E 9,999,999.99"
+         @nLin,208 PSAY OXR->REA12 Picture "@E 9,999,999.99"
+
+
+         nLin := nLin + 1 // Avanca a linha de impressao
+         If  nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+   
+         @nLin,043 PSAY "% Variação"
+         @nLin,054 PSAY IIf(OXR->MES1  > 0, ((OXR->REA1 /OXR->MES1) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,068 PSAY IIf(OXR->MES2  > 0, ((OXR->REA2 /OXR->MES2) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,082 PSAY IIf(OXR->MES3  > 0, ((OXR->REA3 /OXR->MES3) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,096 PSAY IIf(OXR->MES4  > 0, ((OXR->REA4 /OXR->MES4) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,110 PSAY IIf(OXR->MES5  > 0, ((OXR->REA5 /OXR->MES5) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,124 PSAY IIf(OXR->MES6  > 0, ((OXR->REA6 /OXR->MES6) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,138 PSAY IIf(OXR->MES7  > 0, ((OXR->REA7 /OXR->MES7) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,152 PSAY IIf(OXR->MES8  > 0, ((OXR->REA8 /OXR->MES8) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,166 PSAY IIf(OXR->MES9  > 0, ((OXR->REA9 /OXR->MES9) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,180 PSAY IIf(OXR->MES10 > 0, ((OXR->REA10/OXR->MES10)* 100),0) Picture "@E 9,999,999.99"
+         @nLin,194 PSAY IIf(OXR->MES11 > 0, ((OXR->REA11/OXR->MES11)* 100),0) Picture "@E 9,999,999.99"
+         @nLin,208 PSAY IIf(OXR->MES12 > 0, ((OXR->REA12/OXR->MES12)* 100),0) Picture "@E 9,999,999.99"
+
+         //Acumula Totalizadores dos Orçados de Gastos Gerais Adm
+         nOrc1GADM += OXR->MES1
+         nOrc2GADM += OXR->MES2
+         nOrc3GADM += OXR->MES3
+         nOrc4GADM += OXR->MES4
+         nOrc5GADM += OXR->MES5
+         nOrc6GADM += OXR->MES6
+         nOrc7GADM += OXR->MES7
+         nOrc8GADM += OXR->MES8
+         nOrc9GADM += OXR->MES9
+         nOrc10GADM += OXR->MES10
+         nOrc11GADM += OXR->MES11
+         nOrc12GADM += OXR->MES12
+   
+   
+         //Acumula Totalizadores dos Realizados de Gastos Gerais Adm
+         nRea1GADM  += OXR->REA1
+         nRea2GADM  += OXR->REA2
+         nRea3GADM  += OXR->REA3
+         nRea4GADM  += OXR->REA4
+         nRea5GADM  += OXR->REA5
+         nRea6GADM  += OXR->REA6
+         nRea7GADM  += OXR->REA7
+         nRea8GADM  += OXR->REA8
+         nRea9GADM  += OXR->REA9
+         nRea10GADM += OXR->REA10
+         nRea11GADM += OXR->REA11
+         nRea12GADM += OXR->REA12
+
+         If nVez == 1
+            //Acumula Totalizadores Global dos Orçados de Gastos Gerais/Metas
+            nGlbOr1GG += OXR->MES1
+            nGlbOr2GG += OXR->MES2
+            nGlbOr3GG += OXR->MES3
+            nGlbOr4GG += OXR->MES4
+            nGlbOr5GG += OXR->MES5
+            nGlbOr6GG += OXR->MES6
+            nGlbOr7GG += OXR->MES7
+            nGlbOr8GG += OXR->MES8
+            nGlbOr9GG += OXR->MES9
+            nGlbOr10GG += OXR->MES10
+            nGlbOr11GG += OXR->MES11
+            nGlbOr12GG += OXR->MES12
+
+           //Acumula Totalizadores Global dos Realizados de Gastos Gerais/Metas
+           nGbRea1GG += OXR->REA1
+           nGbRea2GG += OXR->REA2
+           nGbRea3GG += OXR->REA3
+           nGbRea4GG += OXR->REA4
+           nGbRea5GG += OXR->REA5
+           nGbRea6GG += OXR->REA6
+           nGbRea7GG += OXR->REA7
+           nGbRea8GG += OXR->REA8
+           nGbRea9GG += OXR->REA9
+           nGbRea10GG += OXR->REA10
+           nGbRea11GG += OXR->REA11
+           nGbRea12GG += OXR->REA12
+         EndIf
+         
+         nLin := nLin + 2 // Avanca a linha de impressao
+
+         DbSkip() // Avanca o ponteiro do registro no arquivo
+   
+      EndDo
+
+   //   *************************************************
+   //   * Imprime Totalizadores do Gastos Gerias Adm/Fin (Orçado / Realizado)
+   //   **************************************************
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais Orçado de Gastos Gerais Indústria ... "
+      Else
+        @nLin,000 PSAY "Tot.Metas Orçado de Gastos Gerais Indústria ... "
+      EndIf
+      @nLin,054 PSAY nOrc1GADM  Picture "@E 9,999,999.99"
+      @nLin,068 PSAY nOrc2GADM  Picture "@E 9,999,999.99"
+      @nLin,082 PSAY nOrc3GADM  Picture "@E 9,999,999.99"
+      @nLin,096 PSAY nOrc4GADM  Picture "@E 9,999,999.99"
+      @nLin,110 PSAY nOrc5GADM  Picture "@E 9,999,999.99"
+      @nLin,124 PSAY nOrc6GADM  Picture "@E 9,999,999.99"
+      @nLin,138 PSAY nOrc7GADM  Picture "@E 9,999,999.99"
+      @nLin,152 PSAY nOrc8GADM  Picture "@E 9,999,999.99"
+      @nLin,166 PSAY nOrc9GADM  Picture "@E 9,999,999.99"
+      @nLin,180 PSAY nOrc10GADM Picture "@E 9,999,999.99"
+      @nLin,194 PSAY nOrc11GADM Picture "@E 9,999,999.99"
+      @nLin,208 PSAY nOrc12GADM Picture "@E 9,999,999.99"
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais Realizado de Gastos Gerais Indústria ... "
+      Else
+         @nLin,000 PSAY "Tot.Metas Realizado de Gastos Gerais Indústria ... "
+      EndIf
+   
+      @nLin,054 PSAY nRea1GADM  Picture "@E 9,999,999.99"
+      @nLin,068 PSAY nRea2GADM  Picture "@E 9,999,999.99"
+      @nLin,082 PSAY nRea3GADM  Picture "@E 9,999,999.99"
+      @nLin,096 PSAY nRea4GADM  Picture "@E 9,999,999.99"
+      @nLin,110 PSAY nRea5GADM  Picture "@E 9,999,999.99"
+      @nLin,124 PSAY nRea6GADM  Picture "@E 9,999,999.99"
+      @nLin,138 PSAY nRea7GADM  Picture "@E 9,999,999.99"
+      @nLin,152 PSAY nRea8GADM  Picture "@E 9,999,999.99"
+      @nLin,166 PSAY nRea9GADM  Picture "@E 9,999,999.99"
+      @nLin,180 PSAY nRea10GADM Picture "@E 9,999,999.99"
+      @nLin,194 PSAY nRea11GADM Picture "@E 9,999,999.99"
+      @nLin,208 PSAY nRea12GADM Picture "@E 9,999,999.99"
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais % Variação de Gastos Gerais Indústria ..."
+      Else
+         @nLin,000 PSAY "Tot.Metas % Variação de Gastos Gerais Indústria ..."
+      EndIf
+   
+      @nLin,054 PSAY IIf(nOrc1GADM  > 0, ((nRea1GADM /nOrc1GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,068 PSAY IIf(nOrc2GADM  > 0, ((nRea2GADM /nOrc2GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,082 PSAY IIf(nOrc3GADM  > 0, ((nRea3GADM /nOrc3GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,096 PSAY IIf(nOrc4GADM  > 0, ((nRea4GADM /nOrc4GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,110 PSAY IIf(nOrc5GADM  > 0, ((nRea5GADM /nOrc5GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,124 PSAY IIf(nOrc6GADM  > 0, ((nRea6GADM /nOrc6GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,138 PSAY IIf(nOrc7GADM  > 0, ((nRea7GADM /nOrc7GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,152 PSAY IIf(nOrc8GADM  > 0, ((nRea8GADM /nOrc8GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,166 PSAY IIf(nOrc9GADM  > 0, ((nRea9GADM /nOrc9GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,180 PSAY IIf(nOrc10GADM  > 0, ((nRea10GADM /nOrc10GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,194 PSAY IIf(nOrc11GADM  > 0, ((nRea11GADM /nOrc11GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,208 PSAY IIf(nOrc12GADM  > 0, ((nRea12GADM /nOrc12GADM) *100),0) Picture "@E 9,999,999.99"
+   
+      nLin := 56 //Força mudança de página
+      
+      //Zera Acumuladores para apresentar valores das naturezas apenas que compõem metas de orçamentos
+
+      //Orçado Gastos Gerais Adm
+      nOrc1GADM := 0
+      nOrc2GADM := 0
+      nOrc3GADM := 0
+      nOrc4GADM := 0
+      nOrc5GADM := 0
+      nOrc6GADM := 0
+      nOrc7GADM := 0
+      nOrc8GADM := 0
+      nOrc9GADM := 0
+      nOrc10GADM := 0
+      nOrc11GADM := 0
+      nOrc12GADM := 0
+
+      //Realizado Gastos Gerais Adm
+      nRea1GADM := 0
+      nRea2GADM := 0
+      nRea3GADM := 0
+      nRea4GADM := 0
+      nRea5GADM := 0
+      nRea6GADM := 0
+      nRea7GADM := 0
+      nRea8GADM := 0
+      nRea9GADM := 0
+      nRea10GADM := 0
+      nRea11GADM := 0
+      nRea12GADM := 0
+
+   Next nVez
+
+   Return   
+
+   Static Function RunDiv
+
+   //Criação do Arquivo Temporário
+   If SELECT("OXR") > 0
+      DbSelectArea("OXR")
+      DbCloseArea()
+   EndIf
+
+   cArqInd := "ORCXREA.CDX"
+   While File(cArqInd)
+      DELETE FILE &cArqInd
+   EndDo
+
+   aCampos := {}
+   //Campos para guardar Metas Orçadas para cada natureza
+   Aadd(aCampos, {"NATUREZ","C",6,0})
+   Aadd(aCampos, {"DESC","C",30,0})
+   Aadd(aCampos, {"MES1","N",14,02})
+   Aadd(aCampos, {"MES2","N",14,02})
+   Aadd(aCampos, {"MES3","N",14,02})
+   Aadd(aCampos, {"MES4","N",14,02})
+   Aadd(aCampos, {"MES5","N",14,02})
+   Aadd(aCampos, {"MES6","N",14,02})
+   Aadd(aCampos, {"MES7","N",14,02})
+   Aadd(aCampos, {"MES8","N",14,02})
+   Aadd(aCampos, {"MES9","N",14,02})
+   Aadd(aCampos, {"MES10","N",14,02})
+   Aadd(aCampos, {"MES11","N",14,02})
+   Aadd(aCampos, {"MES12","N",14,02})
+   //Campos para guardar os Gastos Realizados para cada natureza
+   Aadd(aCampos, {"REA1","N",14,02})
+   Aadd(aCampos, {"REA2","N",14,02})
+   Aadd(aCampos, {"REA3","N",14,02})
+   Aadd(aCampos, {"REA4","N",14,02})
+   Aadd(aCampos, {"REA5","N",14,02})
+   Aadd(aCampos, {"REA6","N",14,02})
+   Aadd(aCampos, {"REA7","N",14,02})
+   Aadd(aCampos, {"REA8","N",14,02})
+   Aadd(aCampos, {"REA9","N",14,02})
+   Aadd(aCampos, {"REA10","N",14,02})
+   Aadd(aCampos, {"REA11","N",14,02})
+   Aadd(aCampos, {"REA12","N",14,02})
+   //Campo para identificar que a natureza do Adm tem Meta de Orçamento
+   Aadd(aCampos, {"MTORCADM","C",01,00})
+
+
+   DbCreate("ORCXREA.DBF",aCampos)
+
+   DbUseArea(.T.,"DBFCDX","ORCXREA.DBF","OXR")
+
+   INDEX ON OXR->NATUREZ TO ORCXREA
+
+   /************************
+   *
+   * GASTOS GERAIS NATUREZAS DIVERSAS (ORÇADO)
+   *
+   ************************/
+   
+      cQuery := " SELECT SED.ED_CODIGO,SE7.E7_ANO,SE7.E7_VALJAN1,SE7.E7_VALFEV1,SE7.E7_VALMAR1,SE7.E7_VALABR1," 
+      cQuery += " SE7.E7_VALMAI1,SE7.E7_VALJUN1,SE7.E7_VALJUL1,SE7.E7_VALAGO1,SE7.E7_VALSET1,SE7.E7_VALOUT1,"
+      cQuery += " SE7.E7_VALNOV1,SE7.E7_VALDEZ1"
+      cQuery += " FROM "+RetSQLName("SED")+" SED LEFT OUTER JOIN "+RetSqlName("SE7")+" SE7 "
+      cQuery += "                                ON SED.ED_CODIGO = SE7.E7_NATUREZ"
+      cQuery += "                               AND SE7.E7_ANO = '" +Substr(DTOS(dDataRel),1,4)+ "'"
+      cQuery += "                               AND SE7.E7_FILIAL = '"+xFilial("SE7")+"'"
+      cQuery += "                               AND SE7.D_E_L_E_T_ = ' '"
+      cQuery += " WHERE SED.D_E_L_E_T_ = ' '"
+      cQuery += "   AND SUBSTRING(SED.ED_CODIGO,1,6) IN "+FormatIn(cGGDiverNat,",")      
+      
+      MemoWrite("C:\TEMP\ROrcXRea_OrçaGerADM.SQL",cQuery)
+      
+      TCQuery cQuery NEW ALIAS "ORGAD"
+      
+      TcSetField("ORGAD","E7_VALJAN1","N",14,02)
+      TcSetField("ORGAD","E7_VALFEV1","N",14,02)
+      TcSetField("ORGAD","E7_VALMAR1","N",14,02)
+      TcSetField("ORGAD","E7_VALABR1","N",14,02)
+      TcSetField("ORGAD","E7_VALMAI1","N",14,02)
+      TcSetField("ORGAD","E7_VALJUN1","N",14,02)
+      TcSetField("ORGAD","E7_VALJUL1","N",14,02)
+      TcSetField("ORGAD","E7_VALAGO1","N",14,02)
+      TcSetField("ORGAD","E7_VALSET1","N",14,02)
+      TcSetField("ORGAD","E7_VALOUT1","N",14,02)
+      TcSetField("ORGAD","E7_VALNOV1","N",14,02)
+      TcSetField("ORGAD","E7_VALDEZ1","N",14,02)
+      
+      DbSelectArea("ORGAD")
+      While !Eof()
+         
+         DbSelectArea("OXR")
+         If DbSeek(ORGAD->ED_CODIGO)
+            RecLock("OXR",.F.)
+               OXR->MES1 += ORGAD->E7_VALJAN1
+               OXR->MES2 += ORGAD->E7_VALFEV1               
+               OXR->MES3 += ORGAD->E7_VALMAR1
+               OXR->MES4 += ORGAD->E7_VALABR1
+               OXR->MES5 += ORGAD->E7_VALMAI1
+               OXR->MES6 += ORGAD->E7_VALJUN1
+               OXR->MES7 += ORGAD->E7_VALJUL1
+               OXR->MES8 += ORGAD->E7_VALAGO1
+               OXR->MES9 += ORGAD->E7_VALSET1
+               OXR->MES10 += ORGAD->E7_VALOUT1
+               OXR->MES11 += ORGAD->E7_VALNOV1
+               OXR->MES12 += ORGAD->E7_VALDEZ1
+              MsUnLock()
+         Else
+            RecLock("OXR",.T.)
+               OXR->NATUREZ := ORGAD->ED_CODIGO
+               OXR->MES1 := ORGAD->E7_VALJAN1
+               OXR->MES2 := ORGAD->E7_VALFEV1               
+               OXR->MES3 := ORGAD->E7_VALMAR1
+               OXR->MES4 := ORGAD->E7_VALABR1
+               OXR->MES5 := ORGAD->E7_VALMAI1
+               OXR->MES6 := ORGAD->E7_VALJUN1
+               OXR->MES7 := ORGAD->E7_VALJUL1
+               OXR->MES8 := ORGAD->E7_VALAGO1
+               OXR->MES9 := ORGAD->E7_VALSET1
+               OXR->MES10 := ORGAD->E7_VALOUT1
+               OXR->MES11 := ORGAD->E7_VALNOV1
+               OXR->MES12 := ORGAD->E7_VALDEZ1
+              MsUnLock()
+         EndIf
+         
+         DbSelectArea("ORGAD")
+         DbSkip()
+         
+      EndDo
+      DbSelectArea("ORGAD")
+      DbCloseArea()
+
+
+   /************************
+   *
+   * GASTOS GERAIS NATUREZAS DIVERSAS (REALIZADO)
+   *
+   ************************/
+   
+      cQuery := " SELECT SUBSTRING(SE5.E5_DATA,1,6) AS MESGST,SUBSTRING(SE5.E5_NATUREZ,1,6) AS NATUREZ,SUM(SE5.E5_VALOR) AS VLGGADM "
+      cQuery += " FROM " + RetSqlName("SE5")+" SE5 "
+      cQuery += " WHERE SE5.E5_RECPAG = 'P'"
+      
+      cQuery += "    AND  SUBSTRING(SE5.E5_DATA,1,4) = '" +Substr(DTOS(dDataRel),1,4)+ "'"
+      
+      cQuery += "  AND SUBSTRING(SE5.E5_NATUREZ,1,6) IN "+FormatIn(cGGDiverNat,",")
+
+      cQuery += "  AND SE5.D_E_L_E_T_ = ' '"
+      cQuery += "  AND SE5.E5_TIPODOC IN ('VL','BA')"
+      cQuery += "  AND SE5.E5_SITUACA = ' '"
+      cQuery += "  AND SUBSTRING(SE5.E5_NUMERO,1,6)  <> '      '"
+      cQuery += "  AND SE5.E5_FILIAL = '" + xFilial("SE5") + "'"
+      cQuery += "  AND (SELECT COUNT(*)"
+      cQuery += "         FROM "+RetSQLName("SE5")+" TMP"
+      cQuery += "       WHERE TMP.E5_FILIAL = '"+xFilial("SE5")+"'"
+      cQuery += "         AND TMP.E5_FILIAL = SE5.E5_FILIAL"
+      cQuery += "         AND TMP.E5_PREFIXO = SE5.E5_PREFIXO"
+      cQuery += "         AND TMP.E5_NUMERO = SE5.E5_NUMERO"
+      cQuery += "         AND TMP.E5_PARCELA = SE5.E5_PARCELA"
+      cQuery += "         AND TMP.E5_TIPO = SE5.E5_TIPO"
+      cQuery += "         AND TMP.E5_CLIFOR = SE5.E5_CLIFOR"
+      cQuery += "         AND TMP.E5_LOJA = SE5.E5_LOJA"
+      cQuery += "         AND TMP.E5_VALOR = SE5.E5_VALOR"   
+      cQuery += "         AND TMP.E5_SEQ = SE5.E5_SEQ"
+      cQuery += "         AND TMP.E5_TIPODOC = 'ES'"
+      cQuery += "         AND TMP.D_E_L_E_T_ <> '*') = 0"
+      cQuery += " GROUP BY SUBSTRING(SE5.E5_DATA,1,6),SUBSTRING(SE5.E5_NATUREZ,1,6)"
+      cQuery += " ORDER BY SUBSTRING(SE5.E5_NATUREZ,1,6)"
+      
+      MemoWrite("C:\TEMP\ROrcXRea_GastGerADM.SQL",cQuery)
+      
+      TCQuery cQuery NEW ALIAS "GADM"
+      
+      TcSetField("GADM","VLGGADM","N",14,02)
+      
+      DbSelectArea("GADM")
+      While !Eof()
+         
+         DbSelectArea("OXR")
+         If DbSeek(GADM->NATUREZ)
+            RecLock("OXR",.F.)
+               If Substr(GADM->MESGST,5,2) == "01"
+                  OXR->REA1 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "02"
+                  OXR->REA2 += GADM->VLGGADM               
+               ElseIf Substr(GADM->MESGST,5,2) == "03"
+                  OXR->REA3 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "04"
+                  OXR->REA4 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "05"
+                  OXR->REA5 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "06"
+                  OXR->REA6 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "07"
+                  OXR->REA7 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "08"
+                  OXR->REA8 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "09"
+                  OXR->REA9 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "10"
+                  OXR->REA10 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "11"
+                  OXR->REA11 += GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "12"
+                  OXR->REA12 += GADM->VLGGADM
+               EndIf
+            MsUnLock()
+         Else
+            RecLock("OXR",.T.)
+               OXR->NATUREZ := GADM->NATUREZ
+               If Substr(GADM->MESGST,5,2) == "01"
+                  OXR->REA1 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "02"
+                  OXR->REA2 := GADM->VLGGADM               
+               ElseIf Substr(GADM->MESGST,5,2) == "03"
+                  OXR->REA3 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "04"
+                  OXR->REA4 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "05"
+                  OXR->REA5 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "06"
+                  OXR->REA6 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "07"
+                  OXR->REA7 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "08"
+                  OXR->REA8 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "09"
+                  OXR->REA9 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "10"
+                  OXR->REA10 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "11"
+                  OXR->REA11 := GADM->VLGGADM
+               ElseIf Substr(GADM->MESGST,5,2) == "12"
+                  OXR->REA12 := GADM->VLGGADM
+               EndIf
+            MsUnLock()
+         EndIf
+         
+         DbSelectArea("GADM")
+         DbSkip()
+         
+      EndDo
+      DbSelectArea("GADM")
+      DbCloseArea()
+      
+   
+   //Selecionando e Marcando Naturezas que contém Metas de Orçamentos
+   cQryMTADM := "SELECT ED_CODIGO "
+   cQryMTADM += " FROM "+RetSQLName("SED")
+   cQryMTADM += " WHERE SUBSTRING(ED_CODIGO,1,6) IN "+FormatIn(cMtDiverNat,",")
+   cQryMTADM += " AND D_E_L_E_T_ <> '*'"
+   
+   TCQuery cQryMTADM New Alias "MTADM"
+   
+   DbSelectArea("MTADM")
+   While !Eof()
+      DbSelectArea("OXR")
+      If DbSeek(SUBSTR(MTADM->ED_CODIGO,1,6))
+         RecLock("OXR",.F.)
+            OXR->MTORCADM := "S"
+         MsUnLock()
+      EndIf
+      DbSelectArea("MTADM")
+      DbSkip()
+   EndDo
+   DbSelectArea("MTADM")
+   DbCloseArea()
+
+   /*
+
+   For nVez := 1 To 1 //2 - Especificamente p/ Naturezas Diversas, o sistema só apresentará Gastos Gerais.
+     
+      If nVez == 1
+         Cabec1       := "                                                                                                    G A S T O S   G E R A I S   D E   N A T U R E Z A S   D I V E R S A S                                                   "
+      Else
+         Cabec1       := "                                                                                                M E T A S   DE   O R Ç A M E N T O   D O   N A T U R E Z A S   D I V E R S A S                                              "
+      EndIf
+      
+      DbSelectArea("OXR")
+      DbGoTop()
+      While !EOF()
+
+      
+         If nVez == 2 .And. OXR->MTORCADM <> "S" //Na impressão do segundo bloco de naturezas, só apresenta natures
+            DbSelectArea("OXR")                  //que compõem Metas de Orçamentos.
+            DbSkip()
+            Loop
+         EndIf
+      
+         //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         //³ Verifica o cancelamento pelo usuario...                             ³
+         //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+         
+         If lAbortPrint
+            @nLin,00 PSAY "*** CANCELADO PELO OPERADOR ***"
+            Exit
+         Endif
+
+         //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         //³ Impressao do cabecalho do relatorio. . .                            ³
+         //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+         If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+    
+         //          10        20        30        40        50        60        70        80        90       100       110       120      130       140        150       160       170       180       190       200      210        220
+         // 01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+         //"                                                                                                    G A S T O S   G E R A I S   D E   N A T U R E Z A S   D I V E R S A S                                                   "
+         //"                                                                                                M E T A S   DE   O R Ç A M E N T O   D O   N A T U R E Z A S   D I V E R S A S                                              "
+         //"Natureza   Descrição                                       Janeiro     Fevereiro         Março         Abril          Maio         Junho         Julho        Agosto      Setembro       Outubro      Novembro      Dezembro"
+         // xxxxxxxxxX xxxxxxxxxXxxxxxxxxxXxxxxxxxxxX      Orçado 9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99  9,999,999.99
+         //                                             Realizado
+         //                                            A Realizar
+         //                                                  Real
+         //                                            % Variação
+
+         @nLin,000 PSAY Substr(OXR->NATUREZ,1,6)
+         @nLin,011 PSAY Substr(Posicione("SED",1,xFilial("SED")+Substr(OXR->NATUREZ,1,6),"ED_DESCRIC"),1,30) 
+         @nLin,047 PSAY "Orçado"
+         @nLin,054 PSAY OXR->MES1  Picture "@E 9,999,999.99"
+         @nLin,068 PSAY OXR->MES2  Picture "@E 9,999,999.99"
+         @nLin,082 PSAY OXR->MES3  Picture "@E 9,999,999.99"
+         @nLin,096 PSAY OXR->MES4  Picture "@E 9,999,999.99"
+         @nLin,110 PSAY OXR->MES5  Picture "@E 9,999,999.99"
+         @nLin,124 PSAY OXR->MES6  Picture "@E 9,999,999.99"
+         @nLin,138 PSAY OXR->MES7  Picture "@E 9,999,999.99"
+         @nLin,152 PSAY OXR->MES8  Picture "@E 9,999,999.99"
+         @nLin,166 PSAY OXR->MES9  Picture "@E 9,999,999.99"
+         @nLin,180 PSAY OXR->MES10 Picture "@E 9,999,999.99"
+         @nLin,194 PSAY OXR->MES11 Picture "@E 9,999,999.99"
+         @nLin,208 PSAY OXR->MES12 Picture "@E 9,999,999.99"
+   
+         nLin := nLin + 1 // Avanca a linha de impressao
+         If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+   
+         @nLin,044 PSAY "Realizado"
+         @nLin,054 PSAY OXR->REA1  Picture "@E 9,999,999.99"
+         @nLin,068 PSAY OXR->REA2  Picture "@E 9,999,999.99"
+         @nLin,082 PSAY OXR->REA3  Picture "@E 9,999,999.99"
+         @nLin,096 PSAY OXR->REA4  Picture "@E 9,999,999.99"
+         @nLin,110 PSAY OXR->REA5  Picture "@E 9,999,999.99"
+         @nLin,124 PSAY OXR->REA6  Picture "@E 9,999,999.99"
+         @nLin,138 PSAY OXR->REA7  Picture "@E 9,999,999.99"
+         @nLin,152 PSAY OXR->REA8  Picture "@E 9,999,999.99"
+         @nLin,166 PSAY OXR->REA9  Picture "@E 9,999,999.99"
+         @nLin,180 PSAY OXR->REA10 Picture "@E 9,999,999.99"
+         @nLin,194 PSAY OXR->REA11 Picture "@E 9,999,999.99"
+         @nLin,208 PSAY OXR->REA12 Picture "@E 9,999,999.99"
+
+
+         nLin := nLin + 1 // Avanca a linha de impressao
+         If  nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+            Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+            nLin := 9 //8
+         Endif
+   
+         @nLin,043 PSAY "% Variação"
+         @nLin,054 PSAY IIf(OXR->MES1  > 0, ((OXR->REA1 /OXR->MES1) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,068 PSAY IIf(OXR->MES2  > 0, ((OXR->REA2 /OXR->MES2) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,082 PSAY IIf(OXR->MES3  > 0, ((OXR->REA3 /OXR->MES3) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,096 PSAY IIf(OXR->MES4  > 0, ((OXR->REA4 /OXR->MES4) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,110 PSAY IIf(OXR->MES5  > 0, ((OXR->REA5 /OXR->MES5) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,124 PSAY IIf(OXR->MES6  > 0, ((OXR->REA6 /OXR->MES6) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,138 PSAY IIf(OXR->MES7  > 0, ((OXR->REA7 /OXR->MES7) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,152 PSAY IIf(OXR->MES8  > 0, ((OXR->REA8 /OXR->MES8) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,166 PSAY IIf(OXR->MES9  > 0, ((OXR->REA9 /OXR->MES9) * 100),0) Picture "@E 9,999,999.99"
+         @nLin,180 PSAY IIf(OXR->MES10 > 0, ((OXR->REA10/OXR->MES10)* 100),0) Picture "@E 9,999,999.99"
+         @nLin,194 PSAY IIf(OXR->MES11 > 0, ((OXR->REA11/OXR->MES11)* 100),0) Picture "@E 9,999,999.99"
+         @nLin,208 PSAY IIf(OXR->MES12 > 0, ((OXR->REA12/OXR->MES12)* 100),0) Picture "@E 9,999,999.99"
+
+         //Acumula Totalizadores dos Orçados de Gastos Gerais Adm
+         nOrc1GADM += OXR->MES1
+         nOrc2GADM += OXR->MES2
+         nOrc3GADM += OXR->MES3
+         nOrc4GADM += OXR->MES4
+         nOrc5GADM += OXR->MES5
+         nOrc6GADM += OXR->MES6
+         nOrc7GADM += OXR->MES7
+         nOrc8GADM += OXR->MES8
+         nOrc9GADM += OXR->MES9
+         nOrc10GADM += OXR->MES10
+         nOrc11GADM += OXR->MES11
+         nOrc12GADM += OXR->MES12
+   
+   
+         //Acumula Totalizadores dos Realizados de Gastos Gerais Adm
+         nRea1GADM  += OXR->REA1
+         nRea2GADM  += OXR->REA2
+         nRea3GADM  += OXR->REA3
+         nRea4GADM  += OXR->REA4
+         nRea5GADM  += OXR->REA5
+         nRea6GADM  += OXR->REA6
+         nRea7GADM  += OXR->REA7
+         nRea8GADM  += OXR->REA8
+         nRea9GADM  += OXR->REA9
+         nRea10GADM += OXR->REA10
+         nRea11GADM += OXR->REA11
+         nRea12GADM += OXR->REA12
+
+         If nVez == 1
+            //Acumula Totalizadores Global dos Orçados de Gastos Gerais/Metas
+            nGlbOr1GG += OXR->MES1
+            nGlbOr2GG += OXR->MES2
+            nGlbOr3GG += OXR->MES3
+            nGlbOr4GG += OXR->MES4
+            nGlbOr5GG += OXR->MES5
+            nGlbOr6GG += OXR->MES6
+            nGlbOr7GG += OXR->MES7
+            nGlbOr8GG += OXR->MES8
+            nGlbOr9GG += OXR->MES9
+            nGlbOr10GG += OXR->MES10
+            nGlbOr11GG += OXR->MES11
+            nGlbOr12GG += OXR->MES12
+
+           //Acumula Totalizadores Global dos Realizados de Gastos Gerais/Metas
+           nGbRea1GG += OXR->REA1
+           nGbRea2GG += OXR->REA2
+           nGbRea3GG += OXR->REA3
+           nGbRea4GG += OXR->REA4
+           nGbRea5GG += OXR->REA5
+           nGbRea6GG += OXR->REA6
+           nGbRea7GG += OXR->REA7
+           nGbRea8GG += OXR->REA8
+           nGbRea9GG += OXR->REA9
+           nGbRea10GG += OXR->REA10
+           nGbRea11GG += OXR->REA11
+           nGbRea12GG += OXR->REA12
+         EndIf
+
+         nLin := nLin + 2 // Avanca a linha de impressao
+
+         DbSkip() // Avanca o ponteiro do registro no arquivo
+   
+      EndDo
+
+   //   *************************************************
+   //   * Imprime Totalizadores do Gastos Gerias Adm/Fin (Orçado / Realizado)
+   //   **************************************************
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais Orçado de Gastos Gerais Nat.Diversas ... "
+      Else
+        @nLin,000 PSAY "Tot.Metas Orçado de Gastos Gerais Nat.Diversas ... "
+      EndIf
+      @nLin,054 PSAY nOrc1GADM  Picture "@E 9,999,999.99"
+      @nLin,068 PSAY nOrc2GADM  Picture "@E 9,999,999.99"
+      @nLin,082 PSAY nOrc3GADM  Picture "@E 9,999,999.99"
+      @nLin,096 PSAY nOrc4GADM  Picture "@E 9,999,999.99"
+      @nLin,110 PSAY nOrc5GADM  Picture "@E 9,999,999.99"
+      @nLin,124 PSAY nOrc6GADM  Picture "@E 9,999,999.99"
+      @nLin,138 PSAY nOrc7GADM  Picture "@E 9,999,999.99"
+      @nLin,152 PSAY nOrc8GADM  Picture "@E 9,999,999.99"
+      @nLin,166 PSAY nOrc9GADM  Picture "@E 9,999,999.99"
+      @nLin,180 PSAY nOrc10GADM Picture "@E 9,999,999.99"
+      @nLin,194 PSAY nOrc11GADM Picture "@E 9,999,999.99"
+      @nLin,208 PSAY nOrc12GADM Picture "@E 9,999,999.99"
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais Realizado de Gastos Gerais Nat.Diversas ... "
+      Else
+         @nLin,000 PSAY "Tot.Metas Realizado de Gastos Gerais Nat.Diversas ... "
+      EndIf
+   
+      @nLin,054 PSAY nRea1GADM  Picture "@E 9,999,999.99"
+      @nLin,068 PSAY nRea2GADM  Picture "@E 9,999,999.99"
+      @nLin,082 PSAY nRea3GADM  Picture "@E 9,999,999.99"
+      @nLin,096 PSAY nRea4GADM  Picture "@E 9,999,999.99"
+      @nLin,110 PSAY nRea5GADM  Picture "@E 9,999,999.99"
+      @nLin,124 PSAY nRea6GADM  Picture "@E 9,999,999.99"
+      @nLin,138 PSAY nRea7GADM  Picture "@E 9,999,999.99"
+      @nLin,152 PSAY nRea8GADM  Picture "@E 9,999,999.99"
+      @nLin,166 PSAY nRea9GADM  Picture "@E 9,999,999.99"
+      @nLin,180 PSAY nRea10GADM Picture "@E 9,999,999.99"
+      @nLin,194 PSAY nRea11GADM Picture "@E 9,999,999.99"
+      @nLin,208 PSAY nRea12GADM Picture "@E 9,999,999.99"
+
+      nLin := nLin + 1 // Avanca a linha de impressao
+
+      If nLin > 55 // Salto de Página. Neste caso o formulario tem 55 linhas...
+         Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+         nLin := 9 //8
+      Endif
+
+      If nVez == 1
+         @nLin,000 PSAY "Totais % Variação de Gastos Gerais Nat.Diversas ..."
+      Else
+         @nLin,000 PSAY "Tot.Metas % Variação de Gastos Gerais Nat.Diversas ..."
+      EndIf
+   
+      @nLin,054 PSAY IIf(nOrc1GADM  > 0, ((nRea1GADM /nOrc1GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,068 PSAY IIf(nOrc2GADM  > 0, ((nRea2GADM /nOrc2GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,082 PSAY IIf(nOrc3GADM  > 0, ((nRea3GADM /nOrc3GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,096 PSAY IIf(nOrc4GADM  > 0, ((nRea4GADM /nOrc4GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,110 PSAY IIf(nOrc5GADM  > 0, ((nRea5GADM /nOrc5GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,124 PSAY IIf(nOrc6GADM  > 0, ((nRea6GADM /nOrc6GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,138 PSAY IIf(nOrc7GADM  > 0, ((nRea7GADM /nOrc7GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,152 PSAY IIf(nOrc8GADM  > 0, ((nRea8GADM /nOrc8GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,166 PSAY IIf(nOrc9GADM  > 0, ((nRea9GADM /nOrc9GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,180 PSAY IIf(nOrc10GADM  > 0, ((nRea10GADM /nOrc10GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,194 PSAY IIf(nOrc11GADM  > 0, ((nRea11GADM /nOrc11GADM) *100),0) Picture "@E 9,999,999.99"
+      @nLin,208 PSAY IIf(nOrc12GADM  > 0, ((nRea12GADM /nOrc12GADM) *100),0) Picture "@E 9,999,999.99"
+   
+      nLin := 56 //Força mudança de página
+      
+      //Zera Acumuladores para apresentar valores das naturezas apenas que compõem metas de orçamentos
+
+      //Orçado Gastos Gerais Adm
+      nOrc1GADM := 0
+      nOrc2GADM := 0
+      nOrc3GADM := 0
+      nOrc4GADM := 0
+      nOrc5GADM := 0
+      nOrc6GADM := 0
+      nOrc7GADM := 0
+      nOrc8GADM := 0
+      nOrc9GADM := 0
+      nOrc10GADM := 0
+      nOrc11GADM := 0
+      nOrc12GADM := 0
+
+      //Realizado Gastos Gerais Adm
+      nRea1GADM := 0
+      nRea2GADM := 0
+      nRea3GADM := 0
+      nRea4GADM := 0
+      nRea5GADM := 0
+      nRea6GADM := 0
+      nRea7GADM := 0
+      nRea8GADM := 0
+      nRea9GADM := 0
+      nRea10GADM := 0
+      nRea11GADM := 0
+      nRea12GADM := 0
+
+   Next nVez
+   */
+   Return   
+/*   
+Static FUNCTION CabecIta(cTitulo,cCabec1,cCabec2,cNomPrg,nTamanho,nChar,aCustomText,lPerg)
+Local nLin    := 0
+Local xStr    := 0
+Local nCont   := 0
+Local nI      := 0
+Local nRecuo  := 20
+Local lWin    := .f.
+Local aDriver := ReadDriver()
+Local nRow
+Local nCol
+Local cAlias
+Local nLargura
+Local cVar
+Local uVar
+Local cPicture
+Local oFntCabec
+Default aCustomText := Nil // Parâmetro que se passado suprime o texto padrao desta função por outro customizado
+
+If lPerg == Nil
+	lPerg := If(GetMv("MV_IMPSX1") == "S" ,.T.,.F.)
+Endif
+
+cNomPrg := Alltrim(cNomPrg)
+
+Private cSuf:=""
+
+//DEFAULT lFirst := .t.
+lFirst := .t.
+If TYPE("__DRIVER") == "C"
+	If "DEFAULT"$__DRIVER
+		lWin := .t.
+	EndIf
+EndIf
+
+nLargura:=Iif(nTamanho=="P",80,Iif(nTamanho=="G",220,132))
+cTitulo :=Iif(TYPE("NewHead")!="U",NewHead,cTitulo)
+
+IF aReturn[5] == IMP_DISCO
+   lWin := .f.    // Se eh disco , nao eh windows
+Endif
+
+If lFirst       
+   nRow := PRow()
+   nCol := PCol()
+   SetPrc(0,0)
+	// Caso seja 80 colunas, sempre imprime Retrato, 220 Coluna sempre imrime Paisagem, já 132 colunas pode imprimir das duas maneiras
+	If aReturn[5] <> IMP_SPOOL // Se não for via Windows manda os caracteres para setar a impressora
+		If nChar == NIL .and. !lWin .and. __cInternet == Nil
+			@ 0,0 PSAY &(If(nTamanho=="P",aDriver[1],If(nTamanho=="G",aDriver[5],(If(aReturn[4]=1,aDriver[3],aDriver[4])))))
+		ElseIf !lWin .and. __cInternet == Nil
+			If nChar == 15
+				@ 0,0 PSAY &(If(nTamanho=="P",aDriver[1],If(nTamanho=="G",aDriver[5],(If(aReturn[4]=1,aDriver[3],aDriver[4])))))
+			Else
+				@ 0,0 PSAY &(If(nTamanho=="P",aDriver[2],If(nTamanho=="G",aDriver[6],aDriver[4])))
+			EndIf
+		EndIf
+	EndIF
+	If GetMV("MV_CANSALT",,.T.) // Saltar uma página na impressão
+		If GetMv("MV_SALTPAG",,"S") != "N"
+			Setprc(nRow,nCol)
+		EndIf	
+	Endif
+EndIf
+
+// Impressão da lista de parâmetros quando solicitada
+If Type("cPerg")!="U" .and. lPerg .and. Substr(cAcesso,101,1) == "S"
+	If lFirst
+		// Imprime o cabeçalho padrão
+		nLin := QSendCabIta(lWin, nLargura, cNomPrg, RptParam+" - "+Alltrim(cTitulo), "", "", .F.)
+	
+		cAlias := Alias()
+		DbSelectArea("SX1")
+		DbSeek(cPerg)
+		@ nLin+=2, 5 PSAY INIPARAM
+		While !EOF() .AND. X1_GRUPO = cPerg
+			cVar := "MV_PAR"+StrZero(Val(X1_ORDEM),2,0)
+			Alert("cVar "+cVar)
+			@(nLin+=2),5 PSAY INIFIELD+RptPerg+" "+ X1_ORDEM + " : "+ AllTrim(X1Pergunt())+FIMFIELD
+			If X1_GSC == "C"
+				xStr:=StrZero(&cVar,2)
+				If ( &(cVar)==1 )
+					@ nLin,Pcol()+3 PSAY INIFIELD+X1Def01()+FIMFIELD
+				ElseIf ( &(cVar)==2 )
+					@ nLin,Pcol()+3 PSAY INIFIELD+X1Def02()+FIMFIELD
+				ElseIf ( &(cVar)==3 )
+					@ nLin,Pcol()+3 PSAY INIFIELD+X1Def03()+FIMFIELD
+				ElseIf ( &(cVar)==4 )
+					@ nLin,Pcol()+3 PSAY INIFIELD+X1Def04()+FIMFIELD
+				ElseIf ( &(cVar)==5 )
+					@ nLin,Pcol()+3 PSAY INIFIELD+X1Def05()+FIMFIELD
+				Else					
+					@ nLin,Pcol()+3 PSAY INIFIELD+''+FIMFIELD
+				EndIf
+			Else
+				uVar := &(cVar)
+				If ValType(uVar) == "N"
+					cPicture:= "@E "+Replicate("9",X1_TAMANHO-X1_DECIMAL-1)
+					If( X1_DECIMAL>0 )
+						cPicture+="."+Replicate("9",X1_DECIMAL)
+					Else
+						cPicture+="9"
+					EndIf
+					@nLin,Pcol()+3 PSAY INIFIELD+Transform(Alltrim(Str(uVar)),cPicture)+FIMFIELD
+				Elseif ValType(uVar) == "D"
+					@nLin,Pcol()+3 PSAY INIFIELD+DTOC(uVar)+FIMFIELD
+				Else
+					@nLin,Pcol()+3 PSAY INIFIELD+uVar+FIMFIELD
+				EndIf
+			EndIf
+			DbSkip()
+		End
+
+		cFiltro := Iif (!Empty(aReturn[7]),MontDescr(cAlias,aReturn[7]),"")
+		nCont := 1
+		If !Empty(cFiltro)
+			@(nLin+=2),5  PSAY  OemtoAnsi("Filtro      : ") + Substr(cFiltro,nCont,nLargura-19)  // "Filtro      : " STR0043
+			While Len(AllTrim(Substr(cFiltro,nCont))) > (nLargura-19)
+				nCont += nLargura - 19
+				@(nLin+=1),19	PSAY	Substr(cFiltro,nCont,nLargura-19)
+			End
+			nLin++
+		EndIf
+		@(++nLin),00  PSAY REPLI("*",nLargura)+FIMPARAM
+		DbSelectArea(cAlias)
+	EndIf
+EndIf
+
+//////////// Imprime Cabecalho
+nLin:=0
+@nLin,0 PSAY INICABEC //Token para identificar o inicio de uma cabec
+nLin++
+@nLin,0 PSAY Iif(!lWin,Chr(13),"")+REPLI("*",nLargura)
+
+// Nome da Empresa
+@(++nLin), 0 PSAY "*"+INIFIELD+AllTrim(SM0->M0_NOME)+If(ExistFilial()," / "+AllTrim(SM0->M0_FILIAL),"")+FIMFIELD
+
+// Folha
+If __SetCentury()
+	nRecuo := 20
+else
+	nRecuo := 18
+endif
+
+@nLin,nLargura-nRecuo  PSAY INIFIELD+RptFolha+" "+TRANSFORM(m_pag,'999999')+FIMFIELD
+@nLin,nLargura-1	 PSAY "*"
+	
+// Versão
+@(++nLin), 0 PSAY "*"+INIFIELD+"SIGA /"+cNomPrg+"/v."+cVersao+FIMFIELD
+
+// Título do relatório
+@nLin,(xStr:=(Len(cNomPrg)+Len(cVersao)+10)) PSAY INIFIELD+PADC(Trim(cTitulo),nLargura-xStr-nRecuo)+FIMFIELD
+@nLin,(nLargura - (Len(RptDtRef+" "+DTOC(dDataBase)))-1) PSAY INIFIELD+RptDtRef+" "+DTOC(dDataBase)+FIMFIELD
+
+@nLin,nLargura-1	 PSAY "*"
+
+// Hora da emissão
+@(++nLin),0 PSAY "*"+INIFIELD+RptHora+" "+time()+FIMFIELD
+
+// Data de emissão
+@nLin,nLargura-nRecuo PSAY INIFIELD+RptEmiss+" "+DToC(MsDate())+FIMFIELD
+
+@nLin,nLargura-1	 PSAY "*"
+LI:=6
+
+If aCustomText == Nil // Imprime o cabeçalho padrão dos relatórios
+	If LEN(Trim(cCabec1)) != 0
+		LI:=8
+		@(++nLin),00 PSAY REPLICATE("*",nLargura) 
+		@(++nLin),00 PSAY INIFIELD+cCabec1+FIMFIELD
+	
+		If LEN(Trim(cCabec2)) != 0
+			@(++nLin),00  PSAY INIFIELD+cCabec2+FIMFIELD
+			LI:=9
+		EndIf
+		@(++nLin),00  PSAY REPLICATE("*",nLargura)
+	Endif
+	@nLin,0 PSAY FIMCABEC //Token para identificar o final de uma cabec	
+Else
+	@++nLin,0 PSAY FIMCABEC //Token para identificar o final de uma cabec
+	@(++nLin),00  PSAY REPLICATE("*",nLargura)
+	For nI := 1 to Len(aCustomText)
+		@(++nLin),0 PSAY aCustomText[nI]
+	Next nI
+	LI := Len(aCustomText)+8
+	@(++nLin),00  PSAY REPLICATE("*",nLargura)
+EndIf
+
+m_pag++
+lFirst := .f.
+If Subs(__cLogSiga,4,1) == "S"
+	__LogPages()
+EndIf
+
+Return nLin   
+
+Static Function QSendCabIta(lWin, nLargura, cNomPrg, cTitulo, cCabec1, cCabec2, lPrtPagNum)
+Local nLin   := 0
+Local xStr   := 0
+Local nRecuo := 20
+
+@(nLin:=0),0 PSAY INICABEC //Token para identificar o inicio de uma cabec
+@(++nLin) ,0 PSAY Iif(!lWin,Chr(13),"")+REPLI("*",nLargura)
+
+// Nome da Empresa
+@(++nLin), 0 PSAY "*"+INIFIELD+AllTrim(SM0->M0_NOME)+If(ExistFilial()," / "+AllTrim(SM0->M0_FILIAL),"")+FIMFIELD
+
+// Folha
+If __SetCentury()
+	nRecuo := 20
+else
+	nRecuo := 18
+endif
+
+If lPrtPagNum // Imprimir o número da folha
+	@nLin,nLargura-nRecuo  PSAY INIFIELD+RptFolha+" "+TRANSFORM(m_pag,'999999')+FIMFIELD
+Else
+	@nLin,nLargura-nRecuo  PSAY INIFIELD+Space(Len(RptFolha)+7)+FIMFIELD // Manda espaços em branco para compatibilizar
+Endif
+@nLin,nLargura-1	 PSAY "*"
+	
+// Versão
+@(++nLin), 0 PSAY "*"+INIFIELD+"SIGA /"+cNomPrg+"/v."+cVersao+FIMFIELD
+
+// Título do relatório
+@nLin,(xStr:=(Len(cNomPrg)+Len(cVersao)+10)) PSAY INIFIELD+PADC(Trim(cTitulo),nLargura-xStr-nRecuo)+FIMFIELD
+@nLin,(nLargura - (Len(RptDtRef+" "+DTOC(dDataBase)))-1) PSAY INIFIELD+RptDtRef+" "+DTOC(dDataBase)+FIMFIELD
+
+@nLin,nLargura-1	 PSAY "*"
+
+// Hora da emissão
+@(++nLin),0 PSAY "*"+INIFIELD+RptHora+" "+time()+FIMFIELD
+
+// Data de emissão
+@nLin,nLargura-nRecuo PSAY INIFIELD+RptEmiss+" "+DToC(MsDate())+FIMFIELD
+
+@nLin,nLargura-1	 PSAY "*"
+LI:=6
+If LEN(Trim(cCabec1)) != 0
+	LI:=8
+	@(++nLin),00 PSAY REPLICATE("*",nLargura) 
+	@(++nLin),00 PSAY INIFIELD+cCabec1+FIMFIELD
+	
+	If LEN(Trim(cCabec2)) != 0
+		@(++nLin),00  PSAY INIFIELD+cCabec2+FIMFIELD
+		LI:=9
+	EndIf
+	@(++nLin),00  PSAY REPLICATE("*",nLargura)
+Else
+	@(++nLin),00 PSAY REPLICATE("*",nLargura) 
+EndIf
+@nLin,0 PSAY FIMCABEC //Token para identificar o final de uma cabec
+
+Return nLin
+*/

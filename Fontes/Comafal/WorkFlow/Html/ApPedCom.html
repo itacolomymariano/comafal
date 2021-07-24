@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Aprova&ccedil;&atilde;o Pedidos de Compras - COMAFAL</title><style type="text/css">
+<!--
+body,td,th {
+	font-size: 10px;
+}
+.style1 {
+	font-family: "Times New Roman", Times, serif;
+	font-weight: bold;
+}
+.style5 {font-size: 14px}
+-->
+</style></head>
+
+<body>
+<div align="center" class="style1"><span class="style5">Aprova&ccedil;&atilde;o do Pedido de Compras</span></div>
+<br />
+Cabe&ccedil;alho do Pedido<br /> 
+<br />
+<table width="100%" border="1">
+  <tr bgcolor="#CCCCCC">
+    <th width="10%" scope="col">Emiss&atilde;o</th>
+    <th width="11%" scope="col">Fornecedor</th>
+    <th width="55%" scope="col">Nome</th>
+    <th width="11%" scope="col">Cond.Pgto</th>
+    <th width="13%" scope="col">N&uacute;mero</th>
+  </tr>
+  <tr>
+    <td>!emissao!</td>
+    <td>!fornecedor!</td>
+    <td>!lb_nome!</td>
+    <td>!lb_cond!</td>
+    <td>!pedido!</td>
+  </tr>
+</table>
+<br />
+<br />
+Itens do Pedido<br />
+<br /> 
+<table width="100%" border="1">
+  <tr bgcolor="#CCCCCC">
+    <th width="9%" scope="col">Item</th>
+    <th width="38%" scope="col">Descri&ccedil;&atilde;o</th>
+    <th width="11%" scope="col">Quantidade</th>
+    <th width="9%" scope="col">Unidade</th>
+    <th width="10%" scope="col">Pre&ccedil;o</th>
+    <th width="11%" scope="col">Total</th>
+    <th width="12%" scope="col">Dt.Entrega</th>
+  </tr>
+  <tr>
+    <td>!produto.item!</td>
+    <td>!produto.codigo!-!produto.descricao!</td>
+    <td>%produto.quant%</td>
+    <td>!produto.unid!</td>
+    <td>%produto.preco%</td>
+    <td>%produto.total%</td>
+    <td>%produto.entrega%</td>
+  </tr>
+</table>
+<br />
+<br />
+<table width="30%" border="1">
+  <tr>
+    <th width="38%" bgcolor="#CCCCCC" scope="col">Total do Pedido </th>
+    <th width="62%" scope="col">%lbvalor%</th>
+  </tr>
+</table>
+<br />
+<br />
+<span class="style1">APROVA&Ccedil;&Atilde;O:</span>
+<br />
+<br /><input type="radio" checked name="%aprovacao%" value="Sim">Sim.
+<br>
+<input type="radio" name="%aprovacao%" value="Nao">
+Não(Favor especificar Motivo) <br />
+<br />
+	<br />
+<form id="form1" name="form1" method="post" action="">
+  <label>Motivo
+  
+  <textarea name="textarea" cols="80" rows="5">%lbmotivo%</textarea>
+  </label>
+</form>
+<br />
+<form id="form2" name="form2" method="post" action="">
+  <input name="Enviar" type="submit" id="Enviar" value="Enviar" />
+  <input name="Limpar" type="submit" id="Limpar" value="Limpar" />
+</form>
+</body>
+</html>

@@ -1,0 +1,35 @@
+#line 1 "E:\INCLUDE\rwmake.ch"
+#line 1 "E:\INCLUDE\stdwin.ch"
+#line 14 "rwmake.ch"
+#line 17 "e:\SMARTC~1\comafal\fontes\sf2460i.prw"
+Function U_SF2460I()
+
+Local aArea := GetArea()
+DbSelectArea("SD2")
+DbSetOrder(3)
+If DbSeek(xFILIAL("SD2")+SF2->F2_DOC+SF2->F2_SERIE+SF2->F2_CLIENTE+SF2->F2_LOJA)
+
+
+
+	While SD2->D2_DOC+SD2->D2_SERIE+SD2->D2_CLIENTE+SD2->D2_LOJA == SF2->F2_DOC+SF2->F2_SERIE+SF2->F2_CLIENTE+SF2->F2_LOJA .AND.  SD2->(!EOF())
+
+		DbSelectArea("SB1")
+		DbSetOrder(1)
+		If MsSeek(xFILIAL("SB1")+SD2->D2_COD)
+			RecLock("SD2", .F. )
+			SD2->D2_X_CST2 := NoRound(SB1->B1_X_CST2 * SD2->D2_QUANT,2)
+			MsUnlock()
+		EndIf
+		SD2->(DbSkip())
+	EndDo
+EndIf
+
+
+
+RecLock ("SF2", .F. )
+SF2->F2_X_USERI :=  Upper(SubStr(cUsuario,7,15))
+MsUnLock()
+
+RestArea(aArea)
+
+Return(NIL)

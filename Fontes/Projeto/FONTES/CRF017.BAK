@@ -1,0 +1,267 @@
+#INCLUDE "rwmake.ch"
+#INCLUDE "topconn.ch"
+
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
+ฑฑบPrograma  ณ CRF017   บ Autor ณ AP5 IDE            บ Data ณ  20/04/05   บฑฑ
+ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
+ฑฑบDescricao ณ Codigo gerado pelo AP5 IDE.                                บฑฑ
+ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบUso       ณ AP5 IDE                                                    บฑฑ
+ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+/*/
+
+User Function CRF017(dDataini,dDataFim)
+
+Local aOrd := {}
+Local cDesc1        := "Este programa tem como objetivo imprimir relatorio "
+Local cDesc2        := "de acordo com os parametros informados pelo usuario."
+Local cDesc3        := "Pedido"
+Local cPict         := ""
+Local titulo        := "Margem de PEDIDOS"
+Local nLin          := 80
+Local Cabec1        := ""
+Local Cabec2        := ""
+Local imprime       := .T.
+Local cPerg         := "CRF017"
+
+Private CbTxt       := ""
+Private lEnd        := .F.
+Private lAbortPrint := .F.
+Private limite      := 220
+Private tamanho     := "G"
+Private nomeprog    := "CRF017" // Coloque aqui o nome do programa para impressao no cabecalho
+Private nTipo       := 15
+Private aReturn     := { "Zebrado", 1, "Administracao", 1, 2, 1, "", 1}
+Private nLastKey    := 0
+Private cbtxt       := Space(10)
+Private cbcont      := 00
+Private m_pag       := 01
+Private wnrel       := "CRF017" // Coloque aqui o nome do arquivo usado para impressao em disco
+Private cString     := "SC5"
+
+DbSelectArea("SC5")
+DbSetOrder(2)
+
+DbSelectArea("SC6")
+DbSetOrder(1)
+
+AjustaSX1(cPerg)
+
+pergunte(cPerg,.F.)
+
+wnrel := SetPrint(cString,NomeProg,cPerg,@titulo,cDesc1,cDesc2,cDesc3,.F.,aOrd,.F.,Tamanho,,.F.)
+
+If nLastKey == 27
+	Return
+EndIf
+
+SetDefault(aReturn,cString)
+
+If nLastKey == 27
+   Return
+EndIf
+
+RptStatus({|| RunReportCRF017(Cabec1,Cabec2,Titulo,nLin) },Titulo)
+Return
+
+/*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
+ฑฑบFuno    ณRUNREPORT บ Autor ณ AP5 IDE            บ Data ณ  13/11/03   บฑฑ
+ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
+ฑฑบDescrio ณ Funcao auxiliar chamada pela RPTSTATUS. A funcao RPTSTATUS บฑฑ
+ฑฑบ          ณ monta a janela com a regua de processamento.               บฑฑ
+ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบUso       ณ Programa principal                                         บฑฑ
+ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+/*/
+
+Static Function RunReportCRF017(Cabec1,Cabec2,Titulo,nLin)
+
+Local nOrdem 	:= 0
+Local cTIPO		:=""
+Local nLINHAS	:=0
+Local nVALCUS	:=0
+Local nVALTOT	:=0
+Local nVALDESC	:=0
+Local aLINHAS 	:={}                              
+Local cObsUser 	:= ""   
+Local cPrazo	:= "" 
+Local nPrecoVen := 0
+Local nTotValor := 0
+Local nTotCusto := 0
+
+DbSelectArea(cString)
+DbSetOrder(1)
+
+SetRegua(val(MV_PAR02)-val(MV_PAR01)+1)
+
+SC5->( MsSeek( xFilial('SC5') + MV_PAR01, .t. ) )
+while SC5->(!EOF() .and. C5_FILIAL == xFilial('SC5') .and. C5_NUM <= MV_PAR02 )
+	
+   If lAbortPrint
+      @nLin,00 PSAY "*** CANCELADO PELO OPERADOR ***"
+      Exit
+   EndIf     
+	
+	
+
+	//ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
+	//ณRecalculo da margem de lucro do Pedidoณ
+	//ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+
+	If SC5->C5_TIPO = "N"
+		DbSelectArea("SC6")
+		DbSetOrder(1)
+		If DbSeek(xFilial("SC6")+SC5->C5_NUM)
+			Do While SC6->(!EOF()) .AND. SC6->C6_NUM == SC5->C5_NUM .AND. xFilial("SC6") == SC6->C6_FILIAL
+				DbSelectArea("SB1")
+				DbSetOrder(1)
+				DbSeek(xFilial("SB1")+SC6->C6_PRODUTO)
+				nPrecoVen := xMoeda(SC6->C6_PRCVEN,SC5->C5_MOEDA,1,SC5->C5_EMISSAO)
+				RecLock("SC6",.F.)
+				If SC6->C6_X_CUSTO == 0
+					SC6->C6_X_CUSTO := SB1->B1_X_CST2
+				EndIf	
+				If NoRound(((nPrecoVen/SC6->C6_X_CUSTO)-1)*100,2) > 999
+					SC6->C6_X_MARGE := 999
+				Else	
+					SC6->C6_X_MARGE := NoRound(((nPrecoVen/SC6->C6_X_CUSTO)-1)*100,2)
+				EndIf	
+				MsUnlock()
+			    nTotValor += xMoeda(SC6->C6_VALOR,SC5->C5_MOEDA,1,SC5->C5_EMISSAO)
+			    nTotCusto += NoRound(SC6->C6_QTDVEN * SC6->C6_X_CUSTO,2)
+			    DbSelectArea("SC6")
+				SC6->(DbSkip())	
+			EndDo                  
+			//DbSelectArea("SC5")
+			//RecLock("SC5",.F.) 
+			//If NoRound(((nTotValor/nTotCusto)-1)*100,2) > 999
+			//	SC5->C5_X_MARGE := 999
+			//Else
+			//	SC5->C5_X_MARGE := NoRound(((nTotValor/nTotCusto)-1)*100,2)
+			//EndIf
+			//SC5->C5_X_CUSTO := nTotCusto
+			//MsUnlock()      
+		EndIf	         
+	EndIf	
+	
+	
+   Cabec(Titulo,Cabec1,Cabec2,NomeProg,Tamanho,nTipo)
+
+   cTIPO	    := ""
+   cCondpag     := ""           
+   cNomeCliente := ""
+   nLINHAS	    :=0
+   nVALCUS	    :=0
+   nVALTOT	    :=0
+   nVALDESC	    :=0
+   aLINHAS 	    :={}                              
+   cObsUser     := ""
+                              
+   DbSelectArea("SE4")  
+   DbSetOrder(1)
+   MsSeek(xFILIAL("SE4")+SC5->C5_CONDPAG)
+   cCondpag:=SE4->E4_DESCRI    
+   
+   If SC5->C5_TIPO $ "N#C#I#P"
+      DbSelectArea("SA1")
+      MsSeek(xFILIAL("SA1")+SC5->C5_CLIENTE+SC5->C5_LOJACLI)
+      cNomeCliente:=SA1->A1_NOME
+   else
+      DbSelectArea("SA2")
+      MsSeek(xFILIAL("SA2")+SC5->C5_CLIENTE+SC5->C5_LOJACLI)
+      cNomeCliente:=SA2->A2_NOME
+   endIf
+  
+   DbSelectArea("SC5")
+
+   @ prow(),pcol()+2 PSAY chr(15)
+   @ prow()+1,0 PSAY '*---------------------------------------------------------------------------------------------------------------------------*'
+   @ prow()+1,0 PSAY '| Cod. Pedido  | Cod.Cliente |  Cliente                                     |  Loja  |      Cond. Pagto.     |    Margem    |'     
+   @ prow()+1,0 PSAY '|--------------|-------------|----------------------------------------------|--------|-----------------------|--------------*'
+   @ prow()+1,0 PSAY '|    '+SC5->C5_NUM+'    |  '+SC5->C5_CLIENTE+'     |    ' + cNomeCliente + '  |  '+SC5->C5_LOJACLI+'    |    '+ cCondpag +'    |   '/*+transf(SC5->C5_X_MARGE,"@E 99999.99")+'   |'*/
+   @ prow()+1,0 PSAY '*---------------------------------------------------------------------------------------------------------------------------*'
+
+   @ prow()+1,0 PSAY ''
+   @ prow()+1,0 PSAY '*--------------------------------------------------------------------------------------------------------------------------------------------*'
+   @ prow()+1,0 PSAY '|Item|  Codigo         | Descri็ใo                      |   Quant.  |     Pc-Unit.    |     Pc-Total    | Desconto % |   MARGEM  |    CUSTO  |'
+   @ prow()+1,0 PSAY '|----|-----------------|--------------------------------|-----------|-----------------|-----------------+------------|-----------|-----------|'
+   *                  | 99 | 123456789012345678901234567    | 999999.999|  999.999.999,99 |  999.999.999,99 |   9999,99  |  9999,99  |  9999,99  |
+   *                            1         2         3         4         5         6         7         8         9        10        11        12        13        14
+   *                  012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+   DbSelectArea("SC6")
+   DbSetOrder(1)
+   MsSeek(xFILIAL("SC6")+SC5->C5_NUM)
+
+   nQTDGER:=0
+   while SC6->( !EOF() .and. C6_NUM == SC5->C5_NUM )
+
+      nVALTOT  += SC6->C6_VALOR
+      nVALCUS  += SC6->C6_X_CUSTO
+
+      @ prow()+1,0 PSAY '| '+SC6->C6_ITEM+' | '+SC6->C6_PRODUTO +' | ' + SC6->C6_DESCRI + ' | ' +transf(SC6->C6_QTDVEN,"9999999")+'   |   '+transf(SC6->C6_PRCVEN,"@E 99,999,999.99")+' |   ' +transform(SC6->C6_VALOR,"@e 99,999,999.99")+' |  ' +transform(SC6->C6_DESCONT,"@e 99999.99")+'  | ' +transform(SC6->C6_X_MARGE,"@e 99999.99")+'  |  ' +transform(SC6->C6_X_CUSTO,"@e 99999.99")+' |'
+
+      SC6->( dbskip() )
+   ENDDO
+
+   DbSelectArea("SC5") 
+   
+   @ prow()+1,0 PSAY '|----|-----------------|--------------------------------|-----------|-----------------|-----------------+------------|-----------|-----------|'
+   @ prow()+1,0 PSAY '                                                                    |     T O T A L   |  ' +TransForm(nVALTOT,'@E 999,999,999.99')+' |            |           | '+TransForm(nVALCUS,'@E 99,999.99')+' |'
+   @ prow()+1,0 PSAY '                                                                    *------------------------------------------------------------------------*'
+
+   SC5->( dbSkip() ) // Avanca o ponteiro do registro no arquivo
+EndDo
+
+SET DEVICE TO SCREEN
+
+If aReturn[5]==1
+   dbCommitAll()
+   SET PRINTER TO
+   OurSpool(wnrel)
+EndIf
+
+MS_FLUSH()
+
+Return
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
+ฑฑบFunction  ณAJUSTASX1 บAutor  ณEduardo Zanardo     บ Data ณ  13/11/03   บฑฑ
+ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
+ฑฑบDesc.     ณAjusta o SX1                                                บฑฑ
+ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+*/
+Static Function AjustaSx1(cPerg)
+
+Local aArea := GetArea()
+
+//+--------------------------------------------------------------+
+//ฆ Variaveis utilizadas para parametros                         ฆ
+//ฆ MV_PAR01             // De Pedido				             ฆ
+//ฆ MV_PAR02             // Ate o Pedido		                 ฆ
+//+--------------------------------------------------------------+
+
+PutSx1(cPerg,"01","De Pedido ?","","","mv_ch1","C",6,0,0,"G","","","","",;
+		"MV_PAR01","","","","","","","","","","","","","","","","")  
+PutSx1(cPerg,"02","Ate o Pedido ?","","","mv_ch2","C",6,0,0,"G","","","","",;
+		"MV_PAR02","","","","","","","","","","","","","","","","")				
+
+RestArea(aArea)
+
+Return(.T.)

@@ -1,0 +1,319 @@
+Group COMAFAL
+   Version=7.0
+   VSSDB=
+   HasProperties=1
+   Properties
+      BeforeApply=
+      AfterApply=
+      Icon=
+      ID=
+      Version=
+      PalmName=
+      OutPut=
+   End
+   ProjectsCount=8
+   Project Compras
+      FoldersCount=6
+      Folder Gatilhos
+         VSSPath=Nova Pasta1
+         FilesCount=0
+      End
+      Folder Genericos
+         VSSPath=Nova Pasta2
+         FilesCount=0
+      End
+      Folder Pontos_Entrada
+         VSSPath=Nova Pasta3
+         FilesCount=0
+      End
+      Folder Relatorios
+         VSSPath=Nova Pasta4
+         FilesCount=0
+      End
+      Folder VlsUser
+         VSSPath=Nova Pasta5
+         FilesCount=0
+      End
+      Folder Atualizacoes
+         VSSPath=Nova Pasta6
+         FilesCount=0
+      End
+   End
+   Project Estoque/Custos
+      FoldersCount=6
+      Folder Gatilhos
+         VSSPath=Nova Pasta1
+         FilesCount=0
+      End
+      Folder Genericos
+         VSSPath=Nova Pasta2
+         FilesCount=2
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\IncMov.prw
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\difsaldo.prx
+             Type=T
+         End
+      End
+      Folder Pontos_Entrada
+         VSSPath=Nova Pasta3
+         FilesCount=3
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\SD3250I.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\MTA265I.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\SD3250E.prw
+             Type=T
+         End
+      End
+      Folder Relatorios
+         VSSPath=Nova Pasta4
+         FilesCount=0
+      End
+      Folder VlsUser
+         VSSPath=Nova Pasta5
+         FilesCount=0
+      End
+      Folder Atualizacoes
+         VSSPath=Nova Pasta6
+         FilesCount=0
+      End
+   End
+   Project Faturamento
+      FoldersCount=6
+      Folder Gatilhos
+         VSSPath=Nova Pasta1
+         FilesCount=0
+      End
+      Folder Genericos
+         VSSPath=Nova Pasta2
+         FilesCount=0
+      End
+      Folder Pontos_Entrada
+         VSSPath=Nova Pasta3
+         FilesCount=2
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\M410LIOK.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\SF2460I.PRW
+             Type=T
+         End
+      End
+      Folder Relatorios
+         VSSPath=Nova Pasta4
+         FilesCount=6
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CRF009.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CRF011.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CRF012.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\crf016.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CRF017.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CRF008.PRW
+             Type=T
+         End
+      End
+      Folder VlsUser
+         VSSPath=Nova Pasta5
+         FilesCount=0
+      End
+      Folder Atualizacoes
+         VSSPath=Nova Pasta6
+         FilesCount=8
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CAF003.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\caf001.prw
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CMF001.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CMF002.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CalcDispEst.prw
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\ClcCalDispE.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CRF008.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\RGerComaf.prw
+             Type=T
+         End
+      End
+   End
+   Project Financeiro
+      FoldersCount=6
+      Folder Gatilhos
+         VSSPath=Nova Pasta1
+         FilesCount=0
+      End
+      Folder Genericos
+         VSSPath=Nova Pasta2
+         FilesCount=8
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CMB006.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CMB005.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CMB009.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CMB004.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CMB003.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CMB001.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CMB002.PRW
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CMB010.PRW
+             Type=T
+         End
+      End
+      Folder Pontos_Entrada
+         VSSPath=Nova Pasta3
+         FilesCount=0
+      End
+      Folder Relatorios
+         VSSPath=Nova Pasta4
+         FilesCount=0
+      End
+      Folder VlsUser
+         VSSPath=Nova Pasta5
+         FilesCount=0
+      End
+      Folder Atualizacoes
+         VSSPath=Nova Pasta6
+         FilesCount=0
+      End
+   End
+   Project Gestao_Pessoal/Ponto Eletronico
+      FoldersCount=7
+      Folder Gatilhos
+         VSSPath=Nova Pasta1
+         FilesCount=0
+      End
+      Folder Genericos
+         VSSPath=Nova Pasta2
+         FilesCount=0
+      End
+      Folder Pontos_Entrada
+         VSSPath=Nova Pasta3
+         FilesCount=0
+      End
+      Folder Relatorios
+         VSSPath=Nova Pasta4
+         FilesCount=0
+      End
+      Folder VlsUser
+         VSSPath=Nova Pasta5
+         FilesCount=0
+      End
+      Folder Atualizacoes
+         VSSPath=Nova Pasta6
+         FilesCount=0
+      End
+      Folder Micelaneas
+         VSSPath=Nova Pasta7
+         FilesCount=0
+      End
+   End
+   Project PCP
+      FoldersCount=6
+      Folder Gatilhos
+         VSSPath=Nova Pasta1
+         FilesCount=0
+      End
+      Folder Genericos
+         VSSPath=Nova Pasta2
+         FilesCount=0
+      End
+      Folder Pontos_Entrada
+         VSSPath=Nova Pasta3
+         FilesCount=0
+      End
+      Folder Relatorios
+         VSSPath=Nova Pasta4
+         FilesCount=0
+      End
+      Folder VlsUser
+         VSSPath=Nova Pasta5
+         FilesCount=0
+      End
+      Folder Atualizaco
+         VSSPath=Nova Pasta6
+         FilesCount=4
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CAI002.prw
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CAI001.prw
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CAI001.prw
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\CAI002.prw
+             Type=T
+         End
+      End
+   End
+   Project Genericos
+      FoldersCount=1
+      Folder fontes
+         VSSPath=Nova Pasta1
+         FilesCount=1
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\comxfuna.prw
+             Type=T
+         End
+      End
+   End
+   Project CallCenter
+      FoldersCount=1
+      Folder Relatorio
+         VSSPath=Nova Pasta1
+         FilesCount=3
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\TMKR03.PRX
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\TMKR3A.PRX
+             Type=T
+         End
+         File C:\Ita\Clientes\Comafal\Fontes\Projeto\FONTES\ClcCalDispE.PRW
+             Type=T
+         End
+      End
+   End
+   BatchBuild_Item0=Ativo_Fixo · APOUSOCO
+   BatchBuild_Item1=Compras · APOUSOCO
+   BatchBuild_Item2=Estoque/Custos · APOUSOCO
+   BatchBuild_Item3=Faturamento · APOUSOCO
+   BatchBuild_Item4=Financeiro · APOUSOCO
+   BatchBuild_Item5=Gestao_Pessoal/Ponto Eletronico · APOUSOCO
+   BatchBuild_Item6=Livros_Fiscais · APOUSOCO
+   BatchBuild_Item7=PCP · APOUSOCO
+   BatchBuild_Item8=Integracoes · APOUSOCO
+   BatchBuild_Item9=Contabilidade · APOUSOCO
+   BatchBuild_Item10=GENERICOS · APOUSOCO
+   BatchBuild_Item11=CALLCENTER · APOUSOCO
+   BatchBuild_Item12=EXTERIOR · APOUSOCO
+End

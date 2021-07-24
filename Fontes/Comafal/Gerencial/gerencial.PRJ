@@ -1,0 +1,64 @@
+Group Mitto_Gerencial
+   Version=7.0
+   VSSDB=
+   HasProperties=1
+   Properties
+      BeforeApply=
+      AfterApply=
+      Icon=
+      ID=
+      Version=
+      PalmName=
+      OutPut=
+   End
+   ProjectsCount=1
+   Project gerencial
+      FoldersCount=1
+      Folder Fontes
+         VSSPath=Fontes
+         FilesCount=13
+         File \desenvolvimento\MITTO\FONTES\crf010j.prw
+             Type=T
+         End
+         File \desenvolvimento\MITTO\FONTES\crf010a.prw
+             Type=T
+         End
+         File \desenvolvimento\MITTO\FONTES\crf010b.prw
+             Type=T
+         End
+         File \desenvolvimento\MITTO\FONTES\crf010C.prw
+             Type=T
+         End
+         File \desenvolvimento\MITTO\FONTES\crf010D.prw
+             Type=T
+         End
+         File \desenvolvimento\MITTO\FONTES\crf010E.prw
+             Type=T
+         End
+         File \desenvolvimento\MITTO\FONTES\crf010F.prw
+             Type=T
+         End
+         File \desenvolvimento\MITTO\FONTES\crf010G.prw
+             Type=T
+         End
+         File \desenvolvimento\MITTO\FONTES\crf010H.prw
+             Type=T
+         End
+         File \desenvolvimento\MITTO\FONTES\CRF010I.prw
+             Type=T
+         End
+         File \desenvolvimento\MITTO\FONTES\crf010.prw
+             Type=T
+         End
+         File \desenvolvimento\MITTO\FONTES\cmb007.prw
+             Type=T
+         End
+         File \desenvolvimento\MITTO\FONTES\erf017.prw
+             Type=T
+         End
+      End
+   End
+   BatchBuild_Item0=FATURAMENTO · APOUSOMI
+   BatchBuild_Item1=GENERICOS · APOUSOMI
+   BatchBuild_Item2=CALLCENTER · APOUSOMI
+End

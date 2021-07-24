@@ -1,0 +1,10 @@
+User Function ZeraQtdIt
+   Local nAreaAki  := GetArea()
+   Local cRetOper   := M->UA_OPER
+   If M->UA_OPER <> "2"
+      For nIt := 1 To Len(aCols)
+         GdFieldPut("UB_QUANT",0,nIt)
+      Next nIt
+   EndIf
+   RestArea(nAreaAki)
+Return(cRetOper)

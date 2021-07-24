@@ -1,0 +1,67 @@
+User Function VldCPagto
+
+   Local lRVldCP := .T.
+   
+   //Restrito a Condições iniciadas com a letra "V"
+   If UPPER(Substr(M->E4_CODIGO,1,1)) == "V")
+   
+      Private nAutoriz  := GetMV("MV_PRZMED")
+      Private cCondicao := Alltrim(M->E4_COND)
+      Private cCondClc  := STRTRAN(cCondicao,",","+")
+      Private nQtdPc    := RunPc(cCondicao)
+      Private nPrzTot   := &cCondClc
+      Private nMedPrazo := (nPrzTot / nQtdPc)
+
+      If nMedPrazo > nAutoriz
+         lRVldCP := .F.
+         Alert("O Prazo Médio desta Condição de Pagamento, "+Alltrim(Str(nMedPrazo))+" dias,"+;
+               " ultrapassa o Prazo Médio autorizado pela Diretoria que é de "+Alltrim(Str(nAutoriz))+" dias,"+;
+               "informe uma Condição de Pagamento com Prazo Médio igual ou inferior ao autorizado.")
+      EndIf
+   
+   EndIf
+
+Return(lRVldCP)
+
+User Function MT360VLD
+
+   //Restrito a Condições iniciadas com a letra "V"
+   If UPPER(Substr(M->E4_CODIGO,1,1)) == "V")
+   
+      Private nAutoriz  := GetMV("MV_PRZMED")
+      Private cCondicao := Alltrim(M->E4_COND)
+      Private cCondClc  := STRTRAN(cCondicao,",","+")
+      Private nQtdPc    := RunPc(cCondicao)
+      Private nPrzTot   := &cCondClc
+      Private nMedPrazo := (nPrzTot / nQtdPc)
+
+      If nMedPrazo > nAutoriz
+         lRVldCP := .F.
+         Alert("O Prazo Médio desta Condição de Pagamento, "+Alltrim(Str(nMedPrazo))+" dias,"+;
+               " ultrapassa o Prazo Médio autorizado pela Diretoria que é de "+Alltrim(Str(nAutoriz))+" dias,"+;
+               "informe uma Condição de Pagamento com Prazo Médio igual ou inferior ao autorizado.")
+      EndIf
+   
+   EndIf
+
+Return(lRVldCP)
+
+Static Function RunPc(cCondicao)
+   
+   nQuantPC := 1//Já iniciamos considerando o mínimo de uma parcela, então se existir a primeira vírgula
+                //isto indica que temos duas parcelas, e se for encontrada uma próxima vírgula temos três
+                // e assim por diante contaremos o número de parcelas de acordo com o número de vírgulas
+                // encontradas.
+   nIncio  := 1
+   For nPc := 1 To Len(cCondicao)
+      cTexto := Substr(IIF(nPC==1,cCondicao,cTexto),nIncio,Len(cCondicao)) 
+      //Alert("cTexto "+cTexto+" nIncio "+Alltrim(Str(nIncio)))
+      nPosVirg := At(",",cTexto)
+      //Alert("nPosVirg "+Alltrim(Str(nPosVirg))+" nPC "+Alltrim(Str(nPC))+" nQuantPC "+Alltrim(Str(nQuantPC)))
+      nIncio  := nPosVirg + 1
+      If nPosVirg > 0
+         nQuantPC ++
+      EndIf
+   Next nPC
+   
+Return(nQuantPC)

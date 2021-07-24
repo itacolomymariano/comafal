@@ -1,0 +1,398 @@
+#include "Protheus.Ch"
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³PE_MTA410 ºAutor  ³Five Solutions      º Data ³  28/09/2010 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ Ponto de Entrada Após ter confirmado e validado todo o     º±±
+±±º          ³ Pedido de Venda.                                           º±±
+±±º          ³ Estamos utilizando para validar a comissão no momento da   º±±
+±±º          ³ gravação do Pedido de Venda conforme determina             º±±
+±±º          ³ do na Tabela de Preço(DA0 - DA0_COMIS)                     º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ COMAFAL: PE,SP e RS - Pedido de Vendas(MATA410)            º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+
+User Function MTA410 //Ponto de Entrada
+   cAreaKi   := GetArea()
+   lRetVldPV := .T. 
+   If Alltrim(FunName()) == "MATA415" .Or. Alltrim(FunName()) == "MATA416"
+      Processa({||fVldCPV()},"Validando Comissões ...")
+      RestArea(cAreaKi)
+      Return(lRetVldPV)
+   EndIf
+   If l410Auto
+      RestArea(cAreaKi) 
+      Return(lRetVldPV)
+   EndIf
+   If M->C5_TIPO == "N"
+      If xFilial("SC5") == "06" 
+         Processa({||fVldCPV()},"Validando Comissões ...")
+      EndIf
+   EndIf
+   RestArea(cAreaKi)
+Return(lRetVldPV)
+User Function COMISTB //Gatilho no C5_CLIENTE, C5_LOJACLI e C5_TABELA.
+   nComTB    := Posicione("DA0",1,xFilial("DA0")+M->C5_TABELA,"DA0_COMIS")
+   If M->C5_TIPO == "N" 
+      cAreaKi   := GetArea()
+      nComTB    := 0
+      lRetVldPV := .T. 
+      Processa({||fVldCPV()},"Validando Comissões ...")
+      RestArea(cAreaKi)
+   EndIf
+Return(nComTB)
+
+Static Function fVldCPV
+   cTabPrc:= M->C5_TABELA
+   DbSelectArea("DA0")
+   DbSetOrder(1)//DA0_FILIAL+DA0_CODTAB
+   If DbSeek(xFilial("DA0")+cTabPrc)
+      nComTB := DA0->DA0_COMIS
+   Else
+      Alert("A tabela de preço "+cTabPrc+" não foi localizada no banco de dados do sistema(Tabela DA0)")
+      Return(.F.)
+   EndIf
+   
+   M->C5_COMIS1 := nComTB
+   /* A Comissão da COMAFAL é atribuída no Cadastro do Vendedor portanto não será tratada por item.
+   
+   nReg := Len(aCols)
+   ProcRegua(nReg)
+   For nPV := 1 To nReg
+      IncProc("Informando Comissões dos Itens "+Alltrim(Str(nPV))+" / "+Alltrim(Str(nReg)))
+      GdFieldPut("C6_COMIS1",nComTB,nPV)
+   Next nPV
+   */
+Return
+
+/*****************
+* Gatilho do Produto para informação do preço no Pedido de Vendas
+* Criado o Gatilho C6_QTDVEN Sequencia 003 Contra Dominio C6_PRCVEN 
+* Regra u_PrcTABCMF() Condição SM0->M0_CODFIL == "06"
+*********************************************************************/
+User Function PrcTABCMF
+   cAreaKi := GetArea()
+   nPrcTAB := GdFieldGet("C6_PRCVEN",n) //M->C6_PRCVEN
+   If l410Auto
+      RestArea(cAreaKi)
+      Return(nPrcTAB)
+   EndIf
+   
+   If M->C5_TIPO == "N"
+   
+      If !l410Auto //Se não for Rotina Automatica
+         cProdTB := GdFieldGet("C6_PRODUTO",n) //M->C6_PRODUTO
+         cTabPd  := M->C5_TABELA
+         nQtdVen := M->C6_QTDVEN
+         dEmiPV  := M->C5_EMISSAO //Five - 28/03/2011
+         nAlqIPI := Posicione("SB1",1,xFilial("SB1")+cProdTB,"B1_IPI")
+         nVlrFrt := GdFieldGet("C6_VLRKM",n)     //Valor do Frete informado no Pedido de Vendas
+         nPrcTAB := 0
+         cNmeProd:= Alltrim(Posicione("SB1",1,xFilial("SB1")+cProdTB,"B1_DESC"))
+         If Empty(cTabPd)
+            Alert("Informe primeiro a tabela de preço do pedido de vendas")
+            Return(nPrcTAB)
+         EndIf
+         DbSelectArea("DA1")
+         DbSetOrder(1) //DA1_FILIAL+DA1_CODTAB+DA1_CODPRO+DA1_INDLOT+DA1_ITEM
+         If DbSeek(xFilial("DA1")+cTabPd+cProdTB)
+            //nVlrIPI := If(nAlqIPI>0, (DA1->DA1_PRCVEN * (nAlqIPI/100)),0)
+            //Five 28/03/2011 - nUmPrc  := DA1->DA1_PRCVEN  //Five Solutions Consultoria - 23/12/2010
+            If dEmiPV < DA1->DA1_DTALTP
+               nUmPrc := DA1->DA1_PRCANT
+            Else
+               nUmPrc := DA1->DA1_PRCVEN
+            EndIf            
+            nClcIPI := (nAlqIPI / 100) + 1
+            nPreC6  := (DA1->DA1_PRCVEN / nClcIPI) - nVlrFrt
+            //MsgInfo("nPreC6 "+Alltrim(Str(nPreC6)))
+      
+            
+             cCndPV  := M->C5_CONDPAG
+             nPercDsc:= fPrzMedio(cCndPV)
+             If nPercDsc > 0
+                //Five - 23/12/2010 - nVlDcPrz := nPreC6 * (nPercDsc/100)
+                nVlDcPrz := nUmPrc * (nPercDsc/100)
+                nPrcTMP := nPreC6
+                nPreC6   := nPreC6 - nVlDcPrz
+                //MsgInfo("Preço do Produto(S/IPI e S/Frete "+Transform(nPrcTMP,"@E 999,999,999.99")+" Percentual de Desconto a ser aplicado "+Transform((nPercDsc/100),"@E 999.99")+" Valor do Desconto "+Transform(nVlDcPrz,"@E 999,999,999.99")+" Valor Liquido "+Transform(nPreC6,"@E 999,999,999.99"))
+             EndIf
+            
+      
+            nPrcTAB := a410Arred(nPreC6,"C6_PRCVEN")
+            nTotPrd := a410Arred((nPrcTAB * nQtdVen),"C6_VALOR")
+            GdFieldPut("C6_VALOR",nTotPrd,n)
+         Else
+            Alert("O Produto "+cProdTB+" - "+cNmeProd+" não foi localizado na Tabela de Preço "+cTabPd+" utilizada no Pedido, este item não pode ser utilizado, pois seu preço permanecerá zerado")
+            Return(nPrcTAB)
+         EndIf
+   
+      EndIf
+   
+   EndIf
+   
+   RestArea(cAreaKi)
+   //MsgInfo("nPrcTAB "+Alltrim(Str(nPrcTAB)))
+Return(nPrcTAB)
+
+/***************************
+* Valida permição da edição do campo Preço de Vendas - C6_PRCVEN de acordo
+* com a Tabela de Preço informada.
+* Validação da Edição do Campo C6_PRCVEN(X3_WHEN) = IF(xFilial("SC6")=="06",U_VldPrecoTB(),.T.)
+* Para esta funcionalidade foram criados os seguintes campos na tabela DA0-Cabeçalho da Tab.Preço:
+*   DA0_EDTPRC - Edita Preco no Pedido de Vendas possibilitando opções S=Sim;N=Nao
+*   DA0_TIPALT - Altera Preço para Maior ou Menor possibilitando opções M=Maior;B=Menor
+***********************************************************************************************/
+User Function VldPrecoTB    //X3_WHEN do Campo C6_PRCVEN
+   If l410Auto
+      Return(.T.)
+   EndIf
+   cTabPd   := M->C5_TABELA 
+   If M->C5_TIPO <> "N"
+      cTabPd   := M->C5_TABELA 
+      Return(.T.)
+   EndIf
+Return( Posicione("DA0",1,xFilial("DA0")+cTabPd,"DA0_EDTPRC") == "S" )
+
+/********************
+* Validação do Preço digitado em relação a tabela de preço
+* informada no pedido de vendas
+* Validação de usuário do campo C6_PRCVEN
+*************************************************************/
+User Function VldTabxPDg
+
+   If l410Auto
+      Return(.T.)
+   EndIf
+   
+   If M->C5_TIPO <> "N"
+      Return(.T.)
+   EndIf
+   
+   cTabPd   := M->C5_TABELA 
+   dEmiPV   := M->C5_EMISSAO //Five - 17/02/2011
+   
+   cProdTB  := GdFieldGet("C6_PRODUTO",n) //M->C6_PRODUTO //
+   nVlrFrt  := GdFieldGet("C6_VLRKM",n)     //Valor do Frete informado no Pedido de Vendas
+   nAlqIPI  := Posicione("SB1",1,xFilial("SB1")+cProdTB,"B1_IPI") 
+   cNmeProd := Alltrim(Posicione("SB1",1,xFilial("SB1")+cProdTB,"B1_DESC"))
+   nClcIPI  := (nAlqIPI / 100) + 1
+   cTabPd   := M->C5_TABELA
+   If Empty(cTabPd) 
+      Alert("Informe a Tabela de Preço")
+      Return(.F.)
+   EndIf
+   
+   nPrcTba  := Posicione("DA1",1,xFilial("DA1")+cTabPd+cProdTB,"DA1_PRCVEN")
+
+   If Empty(nPrcTba)
+      Alert("O Produto "+cProdTB+" - "+cNmeProd+" não foi localizado na Tabela de Preço "+cTabPd+" utilizada no Pedido, este item não pode ser utilizado, pois seu preço permanecerá zerado")
+      Return(.F.)
+   EndIf
+   
+   nPrcDig  := M->C6_PRCVEN + nVlrFrt //GdFieldGet("C6_PRCVEN")  
+   nVlrIPI  := (nPrcDig) * (nAlqIPI/100)
+   nPrcDig  := a410Arred(nPrcDig + nVlrIPI)
+   
+   //MsgInfo(" M->C6_PRCVEN "+Alltrim(Str(M->C6_PRCVEN))+" nVlrIPI "+Alltrim(Str(nVlrIPI))+" nPrcDig "+Alltrim(Str(nPrcDig)))
+   cNmeProd := Alltrim(Posicione("SB1",1,xFilial("SB1")+cProdTB,"B1_DESC"))
+   nPrcTAB  := 0
+   lRetOkPrc:= .T.
+   If Empty(cTabPd)
+      Alert("Informe primeiro a tabela de preço do pedido de vendas")
+      Return(.F.)
+   EndIf
+   DbSelectArea("DA1")
+   DbSetOrder(1) //DA1_FILIAL+DA1_CODTAB+DA1_CODPRO+DA1_INDLOT+DA1_ITEM
+   If DbSeek(xFilial("DA1")+cTabPd+cProdTB)
+      If dEmiPV < DA1->DA1_DTALTP
+         nPrcTAB := DA1->DA1_PRCANT
+      Else
+         nPrcTAB := DA1->DA1_PRCVEN
+      EndIf
+   Else
+      Alert("O Produto "+cProdTB+" - "+cNmeProd+" não foi localizado na Tabela de Preço "+cTabPd+" utilizada no Pedido, este item não pode ser utilizado")
+      Return(.F.)
+   EndIf
+   cPermic  := Posicione("DA0",1,xFilial("DA0")+cTabPd,"DA0_TIPALT") //M=Maior;B=Menor
+   
+   /*
+   If nPrcDig > nPrcTAB .And. cPermic <> "M"
+      Alert("A Tabela "+cTabPd+" não permite preço MAIOR que "+Transform(nPrcTAB,"@E 9,999,999.99")+" para o produto "+cNmeProd+" o preço digitado "+Transform(nPrcDig,"@E 9,999,999.99")+" não será permitido")
+      Return(.F.)
+   EndIf
+   */
+   
+   If nPrcDig < nPrcTAB .And. cPermic <> "B"
+      Alert("A Tabela "+cTabPd+" não permite preço MENOR que "+Transform(nPrcTAB,"@E 9,999,999.99")+" para o produto "+cNmeProd+" o preço digitado "+Transform(nPrcDig,"@E 9,999,999.99")+" não será permitido")
+      Return(.F.)
+   EndIf
+   
+   //If (nPrcDig > nPrcTAB .And. cPermic == "M") .Or. (nPrcDig < nPrcTAB .And. cPermic == "B")
+   If (nPrcDig < nPrcTAB .And. cPermic == "B")
+      lRetOkPrc := .F.
+      cCodPsw := SPACE(10)
+      cAprovad:= SPACE(2)
+      Define MsDialog oPswPrc Title "Validação do Preço Informado" From 001,015 To 250,350 Of oMainWnd Pixel
+         
+         nAprov := 1
+
+         //@ 000,000 BITMAP oBmp RESNAME "LOGIN" Of oPswPrc SIZE 500,400 NOBORDER WHEN .F. PIXEL  //PROJETOAP,LOGIN,PMSEDT4,PMSEDT3,PMSEDT1.PMSDOC,PMSTASK1 - 4,6,ROTEIRO,CLOCK01,ENGRENAGEM,INSTRUME,CLIPS,TOOLBAR,BMPEDT1...4,BMP_TASK1...4
+         @ 010,015 SAY "Codigo de Autorização    " Of oPswPrc PIXEL SIZE 90 ,10 //FONT oBold
+         @ 010,100 MSGET oCodPsw VAR cCodPsw Of oPswPrc PIXEL SIZE 50 ,10 PASSWORD
+         @ 030,015 SAY "Favor solicitar codigo de alteração de preço " Of oPswPrc PIXEL SIZE 150 ,10
+         @ 045,015 SAY "a um dos gestores informados abaixo: " Of oPswPrc PIXEL SIZE 150 ,10 //FONT oBold 
+         @ 060,015 TO 100,150 LABEL "Selecione o Aprovador" Of oPswPrc PIXEL
+
+         @ 075,020 RADIO oAprov VAR nAprov 3D SIZE 100,10 PROMPT "Patricia Amaral [Auditoria ] ","Roberto Lira    [Financeiro] " Of oPswPrc PIXEL
+         /*
+         @ 060,015 SAY "  * Patricia Amaral [Auditoria ] " Of oPswPrc PIXEL SIZE 150 ,10 //FONT oBold 
+         @ 075,015 SAY "  * Roberto Lira    [Financeiro] " Of oPswPrc PIXEL SIZE 150 ,10 //FONT oBold 
+         */
+         @ 115,090 BUTTON oCnfPsw PROMPT "&Confirma" SIZE 70,10 OF oPswPrc PIXEL ACTION(fChkPsw()) WHEN .T.
+         
+      Activate MsDialog oPswPrc Center 
+   EndIf
+      
+Return(lRetOkPrc)
+
+Static Function fChkPsw()
+   cCdoVld := ""
+   If nAprov == 1
+      cCdoVld := Alltrim(GetMV("MV_COMPSW"))
+      cAprovad:= "PAMARAL"
+   Else
+      cCdoVld := Alltrim(GetMV("MV_COMPS2"))
+      cAprovad:= "RLIRA"
+   EndIf
+   //MsgInfo("Alltrim(cCodPsw): "+Alltrim(cCodPsw)+ " Alltrim(cCdoVld): "+Alltrim(cCdoVld))
+   If Alltrim(cCodPsw) == Alltrim(cCdoVld)
+      //GdFieldPut("C6_PRCVEN",nPrcDig,n)
+      GdFieldPut("C6_LIBPRC",cAprovad,n)
+      lRetOkPrc:= .T.
+      oPswPrc:End()
+      Return(.T.)
+   Else
+      Alert("Código Inválido !")
+      lRetOkPrc:= .F.
+      Return(.F.)
+   EndIf
+Return
+
+/*
+ Criado Validação de Usuário(X3_VLDUSER) no Campo C5_TABELA para validar alteração da tabela de preço 
+ após já ter sido digitado produtos no pedido de vendas.
+ REGRA DA VALIDAÇÃO: If(SM0->M0_CODFIL == "06" , u_AltTBPrc(), .T.)
+*/
+User Function AltTBPrc
+   If l410Auto
+      Return(.T.)
+   EndIf
+   If M->C5_TIPO <> "N"
+      Return(.T.)
+   EndIf
+   If Len(aCols) > 0 .Or. !Empty(GdFieldGet("C6_PRODUTO",n))
+      If MsgYesNo("A Alteração da Tabela de Preço após digitação de produto implicará na redigitação das quantidades dos produtos para obter novamente os preço, CONFIRMA ESTA OPERAÇÃO ?")
+         For nTb := 1 To Len(aCols)
+            //GdFieldPut("C6_PRODUTO","",nTb)
+            GdFieldPut("C6_PRCVEN",0,nTb)
+            GdFieldPut("C6_QTDVEN",0,nTb)
+         Next nTb
+         MsgInfo("Digite novamente as quantidades dos produtos para obter os preços da tabela")
+         Return(.T.)
+      Else
+         Return(.F.)
+      EndIf
+   EndIf
+Return(.T.)
+
+User Function GrvCodPsw
+   
+   If Alltrim(cUserName) == "PAMARAL"
+      cCodAnt := Alltrim(GetMV("MV_COMPSW"))
+   Else
+      cCodAnt := Alltrim(GetMV("MV_COMPS2"))
+   EndIf
+   
+   cCodPsw := SPACE(10)
+   Define MsDialog oPswTel Title "Codigo de Permissão p/Alterar Preço" From 001,015 To 150,350 Of oMainWnd Pixel
+         
+      @ 010,015 SAY "Codigo Anterior          " Of oPswTel PIXEL SIZE 90 ,10 //FONT oBold
+      @ 010,100 MSGET oCodPsw VAR cCodPsw Of oPswTel PIXEL SIZE 50 ,10 PASSWORD 
+      @ 025,100 BUTTON oCnfPsw PROMPT "&Ver Anterior" SIZE 50,10 OF oPswTel PIXEL ACTION(MsgInfo("Codigo Anterior: "+cCodAnt)) WHEN .T.
+      @ 040,100 BUTTON oCnfPsw PROMPT "&Confirma" SIZE 50,10 OF oPswTel PIXEL ACTION(TstPsw()) WHEN .T.
+         
+   Activate MsDialog oPswTel Center 
+   
+Return
+Static Function TstPsw
+   If cCodPsw <> cCodAnt
+      Alert("Código Inválido !")
+      lRetOkPrc:= .F.
+      Return(.F.)
+   Else
+      oPswTel:End()
+      cNewPsw := SPACE(10)
+      Define MsDialog oNewTel Title "Novo Codigo p/Alterar Preço" From 001,015 To 150,350 Of oMainWnd Pixel
+         
+         @ 010,015 SAY "Codigo Novo              " Of oNewTel PIXEL SIZE 90 ,10 //FONT oBold
+         @ 010,100 MSGET oNewPsw VAR cNewPsw Of oNewTel PIXEL SIZE 50 ,10 PASSWORD 
+         @ 025,100 BUTTON oCnfNew PROMPT "&Confirma" SIZE 50,10 OF oNewTel PIXEL ACTION(GrvPsw()) WHEN .T.
+         
+      Activate MsDialog oNewTel Center 
+
+   EndIf
+Return
+Static Function GrvPsw()
+   If Alltrim(cUserName) == "PAMARAL"
+      PutMV("MV_COMPSW",cNewPsw)
+   Else
+      PutMV("MV_COMPS2",cNewPsw)
+   EndIf
+   MsgInfo("O Novo codigo para alteração de preços foi gravado com sucesso!")
+   oNewTel:End()
+Return(.T.)
+
+Static Function fPrzMedio(xCondPgt)
+
+   
+   Private nAutoriz  := GetMV("MV_PRZMED")
+   Private cCondicao := Posicione("SE4",1,xFilial("SE4")+xCondPgt,"E4_COND") //cCndPV //Alltrim(xCondPgt) //Alltrim(M->E4_COND)
+   Private cCondClc  := STRTRAN(cCondicao,",","+")
+   Private nQtdPc    := RunPc() //(cCondicao)
+   Private nPrzTot   := &cCondClc
+   Private nMedPrazo := (nPrzTot / nQtdPc)
+   Private nDescCMF  := (2 / nAutoriz)
+   Private nDescPmd  := 0
+   If nMedPrazo < nAutoriz
+      nDiasPrz := nAutoriz - nMedPrazo
+      nDescPmd := a410Arred(nDescCMF * nDiasPrz)
+      //MsgInfo("Prazo Medio Limite Autorizado pela Diretoria "+Alltrim(Str(nAutoriz))+" Prazo Medio da Condicao "+cCondicao+" = "+Alltrim(Str(nMedPrazo))+" Dias de Diferença "+Alltrim(Str(nDiasPrz)))
+   EndIf
+
+Return(nDescPmd)
+
+Static Function RunPc//(cCondicao)
+   
+   nQuantPC := 1//Já iniciamos considerando o mínimo de uma parcela, então se existir a primeira vírgula
+                //isto indica que temos duas parcelas, e se for encontrada uma próxima vírgula temos três
+                // e assim por diante contaremos o número de parcelas de acordo com o número de vírgulas
+                // encontradas.
+   nIncio  := 1
+   For nPc := 1 To Len(cCondicao)
+      cTexto := Substr(IIF(nPC==1,cCondicao,cTexto),nIncio,Len(cCondicao)) 
+      //Alert("cTexto "+cTexto+" nIncio "+Alltrim(Str(nIncio)))
+      nPosVirg := At(",",cTexto)
+      //Alert("nPosVirg "+Alltrim(Str(nPosVirg))+" nPC "+Alltrim(Str(nPC))+" nQuantPC "+Alltrim(Str(nQuantPC)))
+      nIncio  := nPosVirg + 1
+      If nPosVirg > 0
+         nQuantPC ++
+      EndIf
+   Next nPC
+   
+Return(nQuantPC)

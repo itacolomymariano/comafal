@@ -1,0 +1,70 @@
+#include "rwmake.ch"        // incluido pelo assistente de conversao do AP5 IDE
+
+User Function CMB010()   
+
+Local aArea  := GetArea()
+AjustaSx1()
+Pergunte("CMB010",.T.)
+
+DbSelectArea("SE5")
+DbSetOrder(4)
+If DbSeek(xFilial("SE5")+MV_PAR05+MV_PAR03+MV_PAR01)
+	Do While xFilial("SE5")+SE5->E5_NATUREZ+SE5->E5_PREFIXO == xFilial("SE5")+MV_PAR05+MV_PAR03 .AND. (SE5->E5_NUMERO >= MV_PAR01 .AND. ;
+				SE5->E5_NUMERO <= MV_PAR02)
+		If MV_PAR04 == SE5->E5_CLIFOR .And. SE5->E5_RECPAG == "P" 
+			RecLock("SE5",.F.)
+				SE5->E5_NATUREZ := MV_PAR06
+			SE5->(MsUnlock())
+			DbSelectArea("SE2")
+			DbSetOrder(1)
+			If DbSeek(xFilial("SE5")+SE5->E5_PREFIXO+SE5->E5_NUMERO+SE5->E5_PARCELA+SE5->E5_TIPO+SE5->E5_CLIFOR+SE5->E5_LOJA)
+				RecLock("SE2",.F.)
+				SE2->E2_NATUREZ := MV_PAR06
+				SE2->(MsUnlock())				
+			EndIf
+			DbSelectArea("SD1")
+			DbSetOrder(1)
+			If DbSeek(xFilial("SE5")+SE5->E5_NUMERO+SE5->E5_PREFIXO+SE5->E5_CLIFOR+SE5->E5_LOJA)
+				Do While (xFilial("SE5")+SE5->E5_NUMERO+SE5->E5_PREFIXO+SE5->E5_CLIFOR+SE5->E5_LOJA) ==;
+				          xFilial("SD1")+SD1->D1_DOC+SD1->D1_SERIE+SD1->D1_FORNECE+SD1->D1_LOJA  
+					RecLock("SD1",.F.)
+					SD1->D1_X_NATUR := MV_PAR06
+					SD1->(MsUnlock())
+					DbSelectArea("SC7")
+					DbSetOrder(4)
+					If DbSeek(xFilial("SD1")+SD1->D1_COD+SD1->D1_PEDIDO+SD1->D1_ITEMPC)				
+						RecLock("SC7",.F.)
+						SC7->C7_X_NATUR := MV_PAR06
+						SC7->(MsUnlock())					
+					EndIf
+					DbSelectArea("SD1")
+					SD1->(DbSkip())						
+				EndDo	
+			EndIf
+		Endif		
+		DbSelectArea("SE5")		 
+		SE5->(DbSkip())		
+	EndDo
+EndIf          
+
+RestArea(aArea)
+
+Return(.T.)
+
+
+Static Function AjustaSx1()
+
+Local aArea := GetArea()
+
+PutSx1("CMB010","01","Titulo de  ?","","","mv_ch1","C",09,0,0,"G","","","","","MV_PAR01","","","","","","","","","","","","","","","","")  
+PutSx1("CMB010","02","Titulo Ate ?","","","mv_ch2","C",09,0,0,"G","","","","","MV_PAR02","","","","","","","","","","","","","","","","")  
+PutSx1("CMB010","03","Prefixo    ?","","","mv_ch3","C",03,0,0,"G","","","","","MV_PAR03","","","","","","","","","","","","","","","","")
+PutSx1("CMB010","04","Fornecedor ?","","","mv_ch4","D",06,0,0,"G","","","","","MV_PAR04","","","","","","","","","","","","","","","","")
+PutSx1("CMB010","05","Nat.Errada ?","","","mv_ch5","C",10,0,0,"G","","","","","MV_PAR05","","","","","","","","","","","","","","","","") 
+PutSx1("CMB010","06","Nat.Correta?","","","mv_ch6","C",10,0,0,"G","","","","","MV_PAR06","","","","","","","","","","","","","","","","")
+				
+RestArea(aArea)
+
+Return(.T.)
+
+

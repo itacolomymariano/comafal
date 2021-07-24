@@ -1,0 +1,11 @@
+#line 1 "E:\INCLUDE\RWMAKE.CH"
+#line 1 "E:\INCLUDE\stdwin.ch"
+#line 14 "RWMAKE.CH"
+#line 2 "e:\SMARTC~1\comafal\fontes\mta265i.prw"
+#line 1 "E:\INCLUDE\TOPCONN.CH"
+#line 21 "e:\SMARTC~1\comafal\fontes\mta265i.prw"
+Function U_MTA265I()
+RecLock("SDA", .F. )
+_FIELD->SDA->DA_DESCRIC := Posicione("SB1",1,xFilial("SB1")+SDA->DA_PRODUTO,"B1_DESC")
+MsUnLock()
+Return( .T. )

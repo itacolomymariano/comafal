@@ -1,0 +1,34 @@
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
+ฑฑบPrograma  ณChkQtdTp  บAutor  ณFive Solutions      บ Data ณ  07/05/2010 บฑฑ
+ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
+ฑฑบDesc.     ณValida็ใo para permitir ou nใo edi็ใo do campo Quantidade   บฑฑ
+ฑฑบ          ณD1_QUANT no Documento de Entrada.                           บฑฑ
+ฑฑบ          ณS๓ serแ permitido Edi็ใo se o produto NรO for materia prima.บฑฑ
+ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
+ฑฑบUso       ณ COMAFAL PE/RS/SP.                                         บฑฑ
+ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
+ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
+฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+*/
+
+User Function ChkQtdTp
+   lAltQtd := .T.
+   cProdNF := GdFieldGet("D1_COD",n)
+   cTpPrd  := Posicione("SB1",1,xFilial("SB1")+cProdNF,"B1_TIPO")
+   If cTpPrd == "MP"
+      lAltQtd := .F.
+   EndIf
+Return(lAltQtd)
+
+User Function CQtdTpPd
+   lAltQtd := .T.
+   cProdNF := GdFieldGet("C7_PRODUTO",n)
+   cTpPrd  := Posicione("SB1",1,xFilial("SB1")+cProdNF,"B1_TIPO")
+   If cTpPrd == "MP"
+      lAltQtd := .F.
+   EndIf
+Return(lAltQtd)

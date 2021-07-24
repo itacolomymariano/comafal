@@ -1,0 +1,41 @@
+
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³ClcCalDispEºAutor  ³Five Solutions      º Data ³  10/01/2008 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ Validação de Usuário do campo UP_QUANT.                    º±±
+±±º          ³ Sistema fará consistência entre a quantidade digitada no   º±±
+±±º          ³ pedido de pedido de vendas(Call Center) em relação a       º±±
+±±º          ³ disponibilidade do saldo em estoque.                       º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ COMAFAL                                                   º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+
+User Function ClcCalDispE
+   Local lRetVld   := .T.
+   Local nAreaAki  := GetArea()
+   Local nQtdC6    := M->UB_QUANT
+   Local cLocPrd   := GdFieldGet("UB_LOCAL",n)
+   Local cProduto  := GdFieldGet("UB_PRODUTO",n)
+   Local cNomePrd  := Posicione("SB1",1,xFilial("SB1")+cProduto,"B1_DESC")
+   Local cTESPed   := GdFieldGet("UB_TES",n)
+   Local lEstoque  := IIF(Posicione("SF4",1,xFilial("SF4")+cTESPed,"F4_ESTOQUE") == "S",.T.,.F.)
+   Local nSaldoPrd := 0
+   If M->UA_OPER <> "2" .And. lEstoque
+      DbSelectArea("SB2")
+      If DbSeek(xFilial("SB2")+cProduto+cLocPrd)
+         nSaldoPrd := SaldoSB2()
+      EndIf
+      If nQtdC6 > nSaldoPrd
+         lRetVld   := .F.
+         GdFieldPut("UB_QUANT",0,n)
+         Alert("A Quantidade informada "+Alltrim(Transform(nQtdC6,"@E 999,999,999.9999"))+" para o produto "+Alltrim(cNomePrd)+" é maior que a quantidade disponível no Armazém "+cLocPrd+" que é de "+Alltrim(Transform(nSaldoPrd,"@E 999,999,999.9999"))+" Favor iformar uma quantidade menor.")
+      EndIf
+   EndIf
+   RestArea(nAreaAki)
+Return(lRetVld)

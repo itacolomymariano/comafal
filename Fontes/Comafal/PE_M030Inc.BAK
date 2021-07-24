@@ -1,0 +1,94 @@
+/*
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³PE_M030IncºAutor  ³Five Solutions      º Data ³  02/07/2008 º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³ PE - Ponto de Entrada na Inclusão do Cadastro do Cliente   º±±
+±±º          ³ para possibilitar inclusão automática da conta contábil no º±±
+±±º          ³ Plano de Contas.                                           º±±
+±±º          ³                                                            º±±
+±±º          ³                                                            º±±
+±±º          ³                                                            º±±
+±±º          ³                                                            º±±
+±±º          ³                                                            º±±
+±±º          ³                                                            º±±
+±±º          ³                                                            º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºUso       ³ COMAFAL PE/SP/RS                                          º±±
+±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+*/
+User Function M030Inc
+   cArea := GetArea()
+   cAreaAntes := Alias()
+   /**************************************
+     Five Solutions Consultoria - 02/09/2010
+     Não será mais utilizado com esta regra
+     
+   cCtaCtb := SA1->A1_CONTA
+   cAreaAntes := Alias()
+   DbSelectArea("CT1")
+   DbSetOrder(1)
+   If !DbSeek(xFilial("CT1")+cCtaCtb)
+	  DbSelectArea(cAreaAntes)
+      IncSA1x()
+   EndIf
+   ******************************************/
+
+   /**********************
+   * Five Solutions Consultoria
+   * 02/09/2010
+   * Implementado para incluir Item Contabil
+   *****************************************/
+   
+   cChkCli := " SELECT COUNT(*) NQTCTD"
+   cChkCli += "   FROM "+RetSQLName("CTD")
+   cChkCli += "  WHERE CTD_FILIAL = '  '"
+   cChkCli += "    AND CTD_ITEM = '112"+SA1->A1_COD+"'"
+   cChkCli += "    AND D_E_L_E_T_ <> '*'"
+   TCQuery cChkCli NEW ALIAS "XCTD"
+   DbSelectArea("XCTD")
+      nTemCTD := XCTD->NQTCTD
+   DbCloseArea()
+      
+   If nTemCTD <= 0
+
+      DbSelectArea("CTD")
+      RecLock("CTD",.T.)
+         CTD->CTD_FILIAL := SPACE(2)
+         CTD->CTD_ITEM   := "112"+SA1->A1_COD
+         CTD->CTD_DESC01 := Alltrim(SA1->A1_NOME)
+         CTD->CTD_CLASSE := "2" //Analitico
+         CTD->CTD_BLOQ   := "2" //Não Bloqueado
+         CTD->CTD_DTEXIS := dDataBase
+         //CTD->CTD_ITLP   := ""    //Item de Apuração de Resultados - (Lucros/Perdas)
+         CTD->CTD_CLOBRG := "2" //Obriga digitação da Classe de Valor do respectivo Item Contábil - 1=Sim;2=Não
+         CTD->CTD_ACCLVL := "1" //Aceita digitação da Classe de Valor - 1=Sim;2=Não
+         
+      MsUnLock()   
+   
+   EndIf
+   
+   DbSelectArea(cAreaAntes)
+   RestArea(cArea)
+Return
+
+Static Function IncSA1x()
+   
+   lMsErroAuto := .F.
+   cContaCli := SA1->A1_CONTA
+   cDescCta  := Alltrim(SA1->A1_NOME)
+   nOpc   := 3 
+   aConta := {{"CT1_CONTA",cContaCli  ,Nil},;
+              {"CT1_DESC01",cDescCta  ,Nil},;
+              {"CT1_CLASSE","2"       ,Nil},; //2 - Analítica
+              {"CT1_NORMAL","1"       ,Nil},; //1 - Devedora
+              {"CT1_CTASUP","11201001",Nil}}  //11201001 - Conta Fixa para Conta Superior de Clientes.
+   MsExecAuto({|x,y| CTBA020(x,y)},aConta,nOpc)
+   If lMsErroAuto
+      Alert("Ocorreu Erro Fatal na Inclusão da Conta Contábil: "+Alltrim(cContaCli)+" no Plano de Contas, Favor reportar ao Depto. de TI")
+   EndIf
+
+Return
